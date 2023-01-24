@@ -773,6 +773,12 @@ class CustomDataset_punet(torch.utils.data.Dataset):
                 self.label_good_folder = dataset_location + '/Annotator_4'
                 self.label_true_folder = dataset_location + '/Annotator_5'
                 self.image_folder = dataset_location + '/Image'
+            elif dataset_tag == 'oocytes':
+                self.label_over_folder = dataset_location + '/Over'
+                self.label_under_folder = dataset_location + '/Under'
+                self.label_wrong_folder = dataset_location + '/Wrong'
+                self.label_good_folder = dataset_location + '/GT'
+                self.image_folder = dataset_location + '/Gaussian'
                 #
         elif noisylabel == 'binary':
             if dataset_tag == 'mnist':
@@ -796,7 +802,7 @@ class CustomDataset_punet(torch.utils.data.Dataset):
 
         if self.label_mode == 'multi':
             #
-            if self.dataset_tag == 'mnist' or self.dataset_tag == 'brats':
+            if self.dataset_tag == 'mnist' or self.dataset_tag == 'brats' or self.dataset_tag == 'oocytes':
                 #
                 all_labels_over = glob.glob(os.path.join(self.label_over_folder, '*.tif'))
                 all_labels_over.sort()
@@ -835,7 +841,7 @@ class CustomDataset_punet(torch.utils.data.Dataset):
                 label_good[label_good == 4.0] = 3.0
                 label_under[label_under == 4.0] = 3.0
 
-                if self.dataset_tag == 'mnist':
+                if self.dataset_tag == 'mnist' or self.dataset_tag == 'oocytes':
                     label_over = np.where(label_over > 0.5, 1.0, 0.0)
                     label_under = np.where(label_under > 0.5, 1.0, 0.0)
                     label_wrong = np.where(label_wrong > 0.5, 1.0, 0.0)
