@@ -77,7 +77,7 @@ def trainUnet(dataset_tag,
         #
 
         #Skin = SkinNet(input_dim, out_channels = 1)
-        Skin = UNet_v3(n_channels = input_dim, n_classes = class_no)
+        # Skin = UNet_v3(n_channels = input_dim, n_classes = class_no)
         Exp_name = 'UNet' + '_width' + str(width) + \
                    '_depth' + str(depth) + \
                    '_repeat' + str(j) + '_' + labels_mode
