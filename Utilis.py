@@ -630,6 +630,7 @@ def evaluate(evaluatedata, model, device, class_no):
     with torch.no_grad():
         #
         test_iou = 0
+        testloss = 0
         #
         for j, (testimg, testlabel, testname) in enumerate(evaluatedata):
             #
@@ -649,6 +650,9 @@ def evaluate(evaluatedata, model, device, class_no):
                 _, testoutput = torch.max(testoutput, dim=1)
             # print("val max size: ", testoutput.size())
             #
+            # Loss
+            testloss = nn.BCEWithLogitsLoss(reduction='mean')(testoutput, testlabel)
+            #
             # mean_iu_ = segmentation_scores(testlabel.cpu().detach().numpy(), testoutput.cpu().detach().numpy(), class_no)
             # plt.imsave('./test_results/' + testname[0] + '_GT.png', np.swapaxes(np.swapaxes(testimg[0].cpu().detach().numpy(), 0, 1), 1, 2))
             # plt.imsave('./test_results/' + testname[0] + '_segmented_max_0.png', testoutput[0].cpu().detach().numpy(), cmap = 'gray')
@@ -659,7 +663,7 @@ def evaluate(evaluatedata, model, device, class_no):
             # mean_iu_ = dice_coef_torchmetrics(testoutput, testlabel, 2, 'cuda')
             test_iou += mean_iu_
         #
-        return test_iou / (j+1)
+        return test_iou / (j+1), testloss
 
 
 def test(testdata,

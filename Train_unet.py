@@ -309,14 +309,16 @@ def trainSingleModel(model,
             #
             if (j + 1) % iteration_amount == 0:
                 #
-                v_dice = evaluate(validateloader, model, device, class_no=class_no)
+                v_dice, v_loss = evaluate(validateloader, model, device, class_no=class_no)
                 print(
                     'Step [{}/{}], '
                     'Train loss: {:.4f}, '
                     'Train dice: {:.4f}, '
+                    'Validate loss:  {:.4f},'
                     'Validate dice: {:.4f}, '.format(epoch + 1, num_epochs,
                                                running_loss / (j + 1),
                                                running_iou / (j + 1),
+                                               v_loss / (j + 1),
                                                v_dice))
                 # # # ================================================================== #
                 # # #                        TensorboardX Logging                        #
