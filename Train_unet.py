@@ -205,7 +205,7 @@ def trainSingleModel(model,
     #
     writer = SummaryWriter(path_name + '/Log_' + datasettag + '/' + save_model_name)
 
-    model_tl = False
+    model_tl = True
 
     if model_tl:
 
@@ -314,7 +314,7 @@ def trainSingleModel(model,
                     'Step [{}/{}], '
                     'Train loss: {:.4f}, '
                     'Train dice: {:.4f}, '
-                    'Validate loss:  {:.4f},'
+                    'Validate loss: {:.4f},'
                     'Validate dice: {:.4f}, '.format(epoch + 1, num_epochs,
                                                running_loss / (j + 1),
                                                running_iou / (j + 1),
