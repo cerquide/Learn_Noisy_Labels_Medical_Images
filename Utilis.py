@@ -661,6 +661,7 @@ def evaluate(evaluatedata, model, device, class_no):
             # plt.imsave('./test_results/' + testname[1] + '_segmented_max_1.png', testoutput[1].cpu().detach().numpy(), cmap = 'gray')
             # plt.imsave('./test_results/' + testname[1] + '_label_1.png', testlabel[1, 0].cpu().detach().numpy(), cmap = 'gray')
             mean_iu_ = dice_coef_simplified(testoutput, testlabel)
+            mean_iu_ = dice_coef_default(testoutput, testlabel)
             # mean_iu_ = dice_coef_torchmetrics(testoutput, testlabel, 2, 'cuda')
             test_iou += mean_iu_
         #
@@ -1967,9 +1968,9 @@ def dice_coef_default(input, target):
     
     # input_sig = torch.sigmoid(input)
     input_sig = input[:, 0, :, :]
-    target = target
+    target = target[:, 0, :, :]
 
-    iflat = input_sig[:, 1, :, :].contiguous().view(-1).float()
+    iflat = input_sig.view(-1).float()
     tflat = target.view(-1).float()
     intersection = (iflat * tflat).sum()
     union = iflat.sum() + tflat.sum()
