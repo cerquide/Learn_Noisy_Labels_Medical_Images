@@ -160,11 +160,11 @@ def dice_loss(input, target):
         tflat = target.view(-1).float()
     else:
         input_sig = torch.sigmoid(input)
-        target = target.squeeze(1)
+        target = target
 
         iflat = input_sig[:, 0, :, :].contiguous().view(-1)
         tflat = target.view(-1).float()
-        
+
     intersection = (iflat * tflat).sum()
     union = iflat.sum() + tflat.sum()
     dice_score = (2. * intersection + smooth) / (union + smooth)
