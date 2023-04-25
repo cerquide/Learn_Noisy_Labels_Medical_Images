@@ -343,7 +343,7 @@ def double_conv(in_channels, out_channels, step, norm):
             nn.Conv2d(out_channels, out_channels, 3, stride=1, padding=1, groups=1, bias=False),
             nn.InstanceNorm2d(out_channels, affine=True),
             nn.PReLU(),
-            nn.MaxPool2d((2, 2))
+            # nn.MaxPool2d((2, 2))
         )
     elif norm == 'bn':
         return nn.Sequential(
