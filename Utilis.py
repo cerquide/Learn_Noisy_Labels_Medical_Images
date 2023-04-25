@@ -25,7 +25,7 @@ class CustomDataset(torch.utils.data.Dataset):
         self.imgs_folder = imgs_folder
         self.labels_folder = labels_folder
         self.data_augmentation = augmentation
-        self.skin_np = True
+        self.skin_np = False
         # self.transform = transforms
 
     def __getitem__(self, index):
@@ -641,6 +641,8 @@ def evaluate(evaluatedata, model, device, class_no):
             # print("val image size: ", testimg.size())
             # print("val label size: ", testlabel.size())
             testoutput = model(testimg)
+            #
+            testloss = nn.BCEWithLogitsLoss(reduction='mean')(testoutput, testlabel)
             # print("val out size: ", testoutput.size())
             if class_no == 2:
                 testoutput = torch.sigmoid(testoutput)
@@ -651,7 +653,6 @@ def evaluate(evaluatedata, model, device, class_no):
             # print("val max size: ", testoutput.size())
             #
             # Loss
-            testloss = nn.BCEWithLogitsLoss(reduction='mean')(testoutput, testlabel)
             #
             # mean_iu_ = segmentation_scores(testlabel.cpu().detach().numpy(), testoutput.cpu().detach().numpy(), class_no)
             # plt.imsave('./test_results/' + testname[0] + '_GT.png', np.swapaxes(np.swapaxes(testimg[0].cpu().detach().numpy(), 0, 1), 1, 2))
