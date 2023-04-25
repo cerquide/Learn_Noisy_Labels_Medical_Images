@@ -162,7 +162,7 @@ def dice_loss(input, target):
         input_sig = torch.sigmoid(input)
         target = target
 
-        iflat = input_sig[:, 0, :, :].contiguous().view(-1)
+        iflat = input_sig[:, 0, :, :].view(-1).float()
         tflat = target.view(-1).float()
 
     intersection = (iflat * tflat).sum()
