@@ -337,7 +337,7 @@ def double_conv(in_channels, out_channels, step, norm):
     # ===========================================
     if norm == 'in':
         return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 3, stride=step, padding=1, groups=1, bias=False),
+            nn.Conv2d(in_channels, out_channels, 3, stride=1, padding=1, groups=1, bias=False),
             nn.InstanceNorm2d(out_channels, affine=True),
             nn.PReLU(),
             nn.Conv2d(out_channels, out_channels, 3, stride=1, padding=1, groups=1, bias=False),
