@@ -274,7 +274,7 @@ def trainSingleModel(model,
                     #
                 elif losstag == 'ce':
                     #
-                    loss = nn.BCEWithLogitsLoss(reduction='mean')(outputs_logits[:, 1, :, :].unsqueeze(1), labels)
+                    loss = nn.BCEWithLogitsLoss(reduction='mean')(outputs_logits, labels)
                     #
                 elif losstag == 'hybrid':
                     #
