@@ -152,11 +152,19 @@ def dice_loss(input, target):
 
     b, c, h, w = input.size()
     
-    input_sig = torch.sigmoid(input)
-    target = target.squeeze(1)
+    if c != 1:
+        input_sig = torch.sigmoid(input)
+        target = target.squeeze(1)
 
-    iflat = input_sig[:, 1, :, :].contiguous().view(-1)
-    tflat = target.view(-1).float()
+        iflat = input_sig[:, 1, :, :].contiguous().view(-1)
+        tflat = target.view(-1).float()
+    else:
+        input_sig = torch.sigmoid(input)
+        target = target.squeeze(1)
+
+        iflat = input_sig[:, 0, :, :].contiguous().view(-1)
+        tflat = target.view(-1).float()
+        
     intersection = (iflat * tflat).sum()
     union = iflat.sum() + tflat.sum()
     dice_score = (2. * intersection + smooth) / (union + smooth)
