@@ -296,7 +296,7 @@ def trainSingleModel(model,
             # print(imagename)
             print("labels: ", labels.size())
             print("logits: ", outputs_logits.size())
-            break
+            # break
             # print("maxedl: ", train_output.size())
             # train_iou = segmentation_scores(labels.cpu().detach().numpy(), outputs_logits.cpu().detach().numpy(), class_no)
             # plt.imsave('./test_results/' + imagename[0] + '_segmented_max_0.png', train_output[0].cpu().detach().numpy(), cmap = 'gray')
