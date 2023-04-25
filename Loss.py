@@ -152,6 +152,8 @@ def dice_loss(input, target):
 
     b, c, h, w = input.size()
     
+    print("iflat: ", input.size() )
+    print("iflat: ", target.size() )
     if c != 1:
         input_sig = torch.sigmoid(input)
         target = target.squeeze(1)
