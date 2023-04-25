@@ -294,8 +294,8 @@ def trainSingleModel(model,
             #
             # _, train_output = torch.max(outputs_logits, dim = 1)
             # print(imagename)
-            print("labels: ", labels.size())
-            print("logits: ", outputs_logits.size())
+            # print("labels: ", labels.size())
+            # print("logits: ", outputs_logits.size())
             # break
             # print("maxedl: ", train_output.size())
             # train_iou = segmentation_scores(labels.cpu().detach().numpy(), outputs_logits.cpu().detach().numpy(), class_no)
