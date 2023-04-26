@@ -237,3 +237,5 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 ### ======================== ###
 ### ======================== ###
 ### ======================== ###
+
+train_model(images_path, masks_path, path_to_save, log_path)
