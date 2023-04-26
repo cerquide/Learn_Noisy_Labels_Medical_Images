@@ -135,7 +135,6 @@ class UNet(nn.Module):
 
     def forward(self, x):
         
-        x = x.permute(0, 3, 1, 2)  # Change this line to rearrange dimensions (batch_size, channel, height, width)
         enc1 = self.enc1(x)
         enc2 = self.enc2(F.max_pool2d(enc1, 2))
         enc3 = self.enc3(F.max_pool2d(enc2, 2))
