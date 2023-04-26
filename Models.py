@@ -554,7 +554,7 @@ class SkinNet(nn.Module):
                 self.decoders.insert(0, decoder_block(width * 2, width))
 
             else:
-                self.decoders.insert(0, decoder_block(width * (2**(i - 1)), width * (2**(i - 0))))
+                self.decoders.insert(0, decoder_block(width * (2**(i)), width * (2**(i - 1))))
 
         """ Bottleneck """
         self.b = conv_block_skin(width * (2**(depth - 1)), width * (2**depth))
