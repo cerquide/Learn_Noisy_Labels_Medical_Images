@@ -214,6 +214,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
         val_loss /= len(val_loader)
 
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
+        
         # TensorBoard logging
         writer.add_scalars('Loss', {'train': train_loss, 'val': val_loss}, epoch)
 
