@@ -311,7 +311,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 break
         
         save_path = '.'
-        plot_performance(train_loss, val_loss, train_dice_values, val_dice_values, save_path)
+        plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
 
     # Save the training history
     # np.save(str(path_to_save / 'melanoma_base_history_.npy'), {'train_loss': train_loss, 'val_loss': val_loss})
