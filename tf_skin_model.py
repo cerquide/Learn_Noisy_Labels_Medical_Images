@@ -83,8 +83,8 @@ class SkinTrainDataset(Dataset):
             img = self.transform(img)
             mask = self.transform(mask)
 
-        img = torch.from_numpy(img).float()
-        mask = torch.from_numpy(mask).float()
+        img = torch.from_numpy(img).permute(2, 0, 1).float()  # Move the channel dimension to the front
+        mask = torch.from_numpy(mask).permute(2, 0, 1).float()  # Move the channel dimension to the front
 
         return img, mask
 
