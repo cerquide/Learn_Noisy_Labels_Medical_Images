@@ -17,7 +17,7 @@ masks_path = Path("/data/eurova/cumulus_database/numpy/melanoma/imgs_mask_train.
 path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/skin_tf/")
 log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/skin_tf/")
 
-IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
+IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 3
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
