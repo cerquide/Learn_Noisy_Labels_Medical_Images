@@ -171,7 +171,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     # Load the dataset
     dataset = SkinTrainDataset(images_path, masks_path, IMG_WIDTH, IMG_HEIGHT)
     print("Dataset was loaded...")
-    print("dataset size: ", dataset.size())
+    # print("dataset size: ", dataset.size())
 
     train_len = int(len(dataset) * (1 - val_split))
     val_len = len(dataset) - train_len
