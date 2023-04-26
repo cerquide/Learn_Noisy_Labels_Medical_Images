@@ -289,7 +289,7 @@ def trainSingleModel(model,
             #
             if class_no == 2:
                 outputs_logits = torch.sigmoid(outputs_logits)
-                # outputs_logits = (outputs_logits > 0.5).float()
+                outputs_logits = (outputs_logits > 0.5).float()
             else:
                 outputs_logits = torch.softmax(outputs_logits, dim=1)
             #
