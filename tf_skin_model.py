@@ -121,7 +121,7 @@ class UNet(nn.Module):
 
         self.middle = conv_block(128, 256, dropout=0.3)
 
-        self.dec4 = conv_block(256 + 128, 128, dropout=0.2)
+        self.dec4 = conv_block(256 + 128 * 2, 128, dropout=0.2)
         self.dec3 = conv_block(128 + 64, 64, dropout=0.2)
         self.dec2 = conv_block(64 + 32, 32, dropout=0.1)
         self.dec1 = conv_block(32 + 16, 16, dropout=0.1)
