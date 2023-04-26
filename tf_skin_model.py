@@ -202,17 +202,17 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     patience_counter = 0
     best_val_loss = float('inf')
 
+    print("Training...")
     for epoch in range(epochs):
         # Train
-        print("Training...")
         model.train()
         train_loss = 0.0
         train_dice = 0.0
         for X, y in train_loader:
 
             X, y = X.to('cuda'), y.to('cuda')
-            print("X size: ", X.size())
-            print("y size: ", y.size())
+            print("X max: ", X.max())
+            print("y max: ", y.max())
 
             optimizer.zero_grad()
             output = model(X)
@@ -238,6 +238,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_dice = 0.0
         with torch.no_grad():
             for X, y in val_loader:
+
+                X, y = X.to('cuda'), y.to('cuda')
+
                 # Calculate the Loss 
                 output = model(X)
                 loss = criterion(output, y)
