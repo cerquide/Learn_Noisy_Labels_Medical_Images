@@ -211,8 +211,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         for X, y in train_loader:
 
             X, y = X.to('cuda'), y.to('cuda')
-            print("X max: ", X.max())
-            print("y max: ", y.max())
+            print("X min: ", X.min())
+            print("y min: ", y.min())
 
             optimizer.zero_grad()
             output = model(X)
