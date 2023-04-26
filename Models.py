@@ -510,7 +510,6 @@ class encoder_block(nn.Module):
     def forward(self, inputs):
         x = self.conv(inputs)
         p = self.pool(x)
-        print("encoder: ", x.shape)
 
         return x, p
 
@@ -525,10 +524,8 @@ class decoder_block(nn.Module):
         x = self.up(inputs)
         x = torch.cat([x, skip], axis=1)
         x = self.conv(x)
-        print("decoder: ", x.shape)
         
         return x
-
 
 class SkinNet(nn.Module):
 
