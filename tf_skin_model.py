@@ -121,10 +121,10 @@ class UNet(nn.Module):
 
         self.middle = conv_block(128, 256, dropout=0.3)
 
-        self.dec4 = conv_block(256 + 128, 128, dropout=0.2)
-        self.dec3 = conv_block(128 + 64, 64, dropout=0.2)
-        self.dec2 = conv_block(64 + 32, 32, dropout=0.1)
-        self.dec1 = conv_block(32 + 16, 16, dropout=0.1)
+        self.dec4 = conv_block(256, 128, dropout=0.2)
+        self.dec3 = conv_block(128 , 64, dropout=0.2)
+        self.dec2 = conv_block(64, 32, dropout=0.1)
+        self.dec1 = conv_block(32, 16, dropout=0.1)
 
         self.upconv4 = upconv_block(256, 128)
         self.upconv3 = upconv_block(128, 64)
@@ -135,14 +135,18 @@ class UNet(nn.Module):
 
     def forward(self, x):
         enc1 = self.enc1(x)
+        print(enc1.size())
         enc2 = self.enc2(F.max_pool2d(enc1, 2))
+        print(enc2.size())
         enc3 = self.enc3(F.max_pool2d(enc2, 2))
+        print(enc3.size())
         enc4 = self.enc4(F.max_pool2d(enc3, 2))
         print(enc4.size())
         middle = self.middle(F.max_pool2d(enc4, 2))
-
+        print(middle.size())
         up4 = self.upconv4(middle)
         dec4 = self.dec4(torch.cat([up4, enc4], 1))
+        print(dec4.size())
         up3 = self.upconv3(dec4)
         dec3 = self.dec3(torch.cat([up3, enc3], 1))
         up2 = self.upconv2(dec3)
