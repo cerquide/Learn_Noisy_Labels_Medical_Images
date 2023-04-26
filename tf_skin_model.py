@@ -163,7 +163,7 @@ class UNet(nn.Module):
         up1 = self.upconv1(dec2)
         dec1 = self.dec1(torch.cat([up1, enc1], 1))
 
-        return torch.sigmoid(self.output(dec1))
+        return self.output(dec1)
 
 def initialize_model(img_width, img_height, img_channels):
     model = UNet(img_channels)
@@ -220,8 +220,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             output = model(X)
 
             # Calculate the Loss
-            # loss = criterion(output, y)
-            loss = dice_loss(output, y)
+            loss = criterion(output, y)
+            # loss = dice_loss(output, y)
 
             loss.backward()
             optimizer.step()
@@ -247,7 +247,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output = model(X)
                 loss = criterion(output, y)
-                loss = dice_loss(output, y)
+                # loss = dice_loss(output, y)
                 val_loss += loss.item()
 
                 # Calculate the Dice 
