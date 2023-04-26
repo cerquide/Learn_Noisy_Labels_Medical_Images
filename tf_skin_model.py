@@ -38,6 +38,10 @@ def dice_coefficient(pred, target):
 
     return (2.0 * intersection + smooth) / (pred_flat.sum() + target_flat.sum() + smooth)
 
+def dice_loss(pred, target):
+
+    return 1 - dice_coefficient(pred, target)
+
 def preprocessor(input_img, img_rows, img_cols):
     """
     Resize input images to constants sizes
@@ -216,7 +220,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             output = model(X)
 
             # Calculate the Loss
-            loss = criterion(output, y)
+            # loss = criterion(output, y)
+            loss = dice_loss(output, y)
 
             loss.backward()
             optimizer.step()
@@ -242,6 +247,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output = model(X)
                 loss = criterion(output, y)
+                loss = dice_loss(output, y)
                 val_loss += loss.item()
 
                 # Calculate the Dice 
