@@ -64,7 +64,7 @@ def load_skin_train_data(imgs_path, masks_path, img_width, img_height):
     X_train = preprocessor(X_train, img_width, img_height)
     y_train = preprocessor(y_train, img_width, img_height)
 
-    X_train = X_train.astype('float32') / 255.
+    X_train = X_train.astype('float32')
     mean = np.mean(X_train)
     std = np.std(X_train)
 
@@ -192,7 +192,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     # Initialize the model, loss function and optimizer
     model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to('cuda')
     print("Model initialized...")
-    criterion = nn.BCEWithLogitsLoss()  # The loss function
+    criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
     # Setup TensorBoard logging
