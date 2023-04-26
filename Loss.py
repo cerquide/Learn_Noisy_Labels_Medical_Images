@@ -166,8 +166,8 @@ def dice_loss(input, target):
 
         iflat = input_sig[:, 0, :, :].view(-1)
         tflat = target.view(-1)
-    print("iflat: ", iflat.size() )
-    print("iflat: ", tflat.size() )
+    # print("iflat: ", iflat.size() )
+    # print("iflat: ", tflat.size() )
     intersection = (iflat * tflat).sum()
     union = iflat.sum() + tflat.sum()
     dice_score = (2. * intersection + smooth) / (union + smooth)

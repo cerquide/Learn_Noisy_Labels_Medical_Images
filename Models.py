@@ -342,8 +342,7 @@ def double_conv(in_channels, out_channels, step, norm):
             nn.PReLU(),
             nn.Conv2d(out_channels, out_channels, 3, stride=1, padding=1, groups=1, bias=False),
             nn.InstanceNorm2d(out_channels, affine=True),
-            nn.PReLU(),
-            # nn.MaxPool2d((2, 2))
+            nn.PReLU()
         )
     elif norm == 'bn':
         return nn.Sequential(
@@ -352,8 +351,7 @@ def double_conv(in_channels, out_channels, step, norm):
             nn.PReLU(),
             nn.Conv2d(out_channels, out_channels, 3, stride=1, padding=1, groups=1, bias=False),
             nn.BatchNorm2d(out_channels, affine=True),
-            nn.PReLU(),
-            nn.MaxPool2d((2, 2))
+            nn.PReLU()
         )
     elif norm == 'ln':
         return nn.Sequential(
@@ -479,85 +477,118 @@ class UNet(nn.Module):
 # ===============================
 # Skin-net
 # ===============================
+class conv_block_skin(nn.Module):
+    def __init__(self, in_c, out_c):
+        super().__init__()
+
+        self.conv1 = nn.Conv2d(in_c, out_c, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm2d(out_c)
+
+        self.conv2 = nn.Conv2d(out_c, out_c, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm2d(out_c)
+
+        self.relu = nn.ReLU()
+
+    def forward(self, inputs):
+        x = self.conv1(inputs)
+        x = self.bn1(x)
+        x = self.relu(x)
+
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.relu(x)
+
+        return x
+
+class encoder_block(nn.Module):
+    def __init__(self, in_c, out_c):
+        super().__init__()
+
+        self.conv = conv_block_skin(in_c, out_c)
+        self.pool = nn.MaxPool2d((2, 2))
+
+    def forward(self, inputs):
+        x = self.conv(inputs)
+        p = self.pool(x)
+
+        return x, p
+
+class decoder_block(nn.Module):
+    def __init__(self, in_c, out_c):
+        super().__init__()
+
+        self.up = nn.ConvTranspose2d(in_c, out_c, kernel_size=2, stride=2, padding=0)
+        self.conv = conv_block_skin(out_c+out_c, out_c)
+
+    def forward(self, inputs, skip):
+        x = self.up(inputs)
+        x = torch.cat([x, skip], axis=1)
+        x = self.conv(x)
+        return x
+
+
 class SkinNet(nn.Module):
 
-    def __init__(self, in_channels, out_channels):
-        super(SkinNet, self).__init__()
+    def __init__(self, in_ch, width, depth, dropout=False, apply_last_layer=True):
+        super().__init__()
 
-        # Encoder
-        self.enc1 = self._conv_block(in_channels, 16)
-        self.enc2 = self._conv_block(16, 32)
-        self.enc3 = self._conv_block(32, 64)
-        self.enc4 = self._conv_block(64, 128)
-        self.enc5 = self._conv_block(128, 256)
+        self.decoders = nn.ModuleList()
+        self.encoders = nn.ModuleList()
 
-        # Bottleneck
-        self.bottleneck = nn.Sequential(
-            nn.Conv2d(256, 256, kernel_size = 3, padding = 1),
-            nn.ReLU(inplace = True),
-            nn.Dropout(0.3),
-            nn.Conv2d(256, 256, kernel_size = 3, padding = 1),
-            nn.ReLU(inplace = True)
-        )
+        """ Encoder """
+        for i in range(0, depth):
 
-        # Decoder
-        self.dec4 = self._upconv_block(256, 128)
-        self.dec3 = self._upconv_block(128, 64)
-        self.dec2 = self._upconv_block(64, 32)
-        self.dec1 = self._upconv_block(32, 16)
+            if i == 0:
+                self.encoders.append(encoder_block(in_ch, width))
 
-        # Output
-        self.out = nn.Conv2d(16, out_channels, kernel_size = 1)
+            else:
+                self.encoders.append(encoder_block(width * (2**(i - 1)), width * (2**i)))
 
-    def _conv_block(self, in_channels, out_channels):
-        return nn.Sequential(
-                                nn.Conv2d(in_channels, out_channels, kernel_size = 3, padding = 1),
-                                nn.ReLU(inplace = True),
-                                nn.Dropout(0.1),
-                                nn.Conv2d(out_channels, out_channels, kernel_size = 3, padding = 1),
-                                nn.ReLU(inplace = True),
-                                nn.MaxPool2d(kernel_size = 2, stride = 2)
-                            )
-    
-    def _upconv_block(self, in_channels, out_channels):
-        return nn.Sequential(
-                                nn.ConvTranspose2d(in_channels, out_channels, kernel_size = 2, stride = 2),
-                                nn.ReLU(inplace = True)
-                            )
+        """ Decoder """
+        for i in range(0, depth):
+
+            if i == 0:
+                self.decoders.insert(0, decoder_block(width * 2, width))
+
+            else:
+                self.decoders.insert(0, decoder_block(width * (2**(i - 1)), width * (2**i)))
+
+        """ Bottleneck """
+        self.b = conv_block_skin(width * (depth - 1), width * depth)
+
+        """ Classifier """
+        self.conv_last = nn.Conv2d(width, 1, kernel_size = 1, padding = 0)
 
     def forward(self, x):
+
+        s, p, d = [], [], []
+
+        """ Encoder """
+        s_tmp, p_tmp = self.encoders[0](x)
+        s.append(s_tmp)
+        p.append(p_tmp)
         
-        # Encoder
-        enc1 = self.enc1(x)
-        enc2 = self.enc2(enc1)
-        enc3 = self.enc3(enc2)
-        enc4 = self.enc4(enc3)
-        enc5 = self.enc5(enc4)
+        for i in range(len(self.encoders) - 1):
+            
+            s_tmp, p_tmp = self.encoders[i + 1](p[i])
+            s.append(s_tmp)
+            p.append(p_tmp)
 
-        # Bottleneck
-        bottleneck = self.bottleneck(enc5)
+        b = self.b(p[-1])
 
-        # Decoder
-        dec4 = self.dec4(bottleneck)
-        dec4 = torch.cat((dec4, enc4), dim = 1)
-        dec4 = self._conv_block(256, 128)(dec4)
+        d_tmp = self.decoders[0](b, s[-1])
+        d.append(d_tmp)
 
-        dec3 = self.dec3(dec4)
-        dec3 = torch.cat((dec3, enc3), dim = 1)
-        dec3 = self._conv_block(128, 64)(dec3)
+        for i in range(len(self.decoders) - 1):
 
-        dec2 = self.dec2(dec3)
-        dec2 = torch.cat((dec2, enc2), dim = 1)
-        dec2 = self._conv_block(64, 32)(dec2)
+            d_tmp = self.decoders[i + 1](d[i], s[-(i + 1)])
+            d.append(d_tmp)
 
-        dec1 = self.dec1(dec2)
-        dec1 = torch.cat((dec1, enc1), dim = 1)
-        dec1 = self._conv_block(32, 16)(dec1)
+        y = self.conv_last(d[-1])
 
-        # Output layer
-        out = torch.sigmoid(self.out(dec1))
-        
-        return out
+        return y
+# ===============================
+# ===============================
 
 # ===============================
 # Alternative U-net

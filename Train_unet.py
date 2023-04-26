@@ -76,7 +76,7 @@ def trainUnet(dataset_tag,
                    apply_last_layer=True)
         #
 
-        #Skin = SkinNet(input_dim, out_channels = 1)
+        Skin = SkinNet(in_ch = input_dim, width =width, depth = depth)
         # Skin = UNet_v3(n_channels = input_dim, n_classes = class_no)
         Exp_name = 'UNet' + '_width' + str(width) + \
                    '_depth' + str(depth) + \
@@ -85,7 +85,7 @@ def trainUnet(dataset_tag,
         # ====================================================================================================================================================================
         trainloader, validateloader, testloader, data_length = getData(data_directory, dataset_name, dataset_tag, train_batchsize, validate_batchsize, augmentation, labels_mode)
         # ==================
-        trainSingleModel(Exp,
+        trainSingleModel(Skin,
                          Exp_name,
                          num_epochs,
                          data_length,
