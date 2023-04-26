@@ -21,7 +21,7 @@ IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
-epochs = 1
+epochs = 10
 patience = 500
 
 
@@ -193,7 +193,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to('cuda')
     print("Model initialized...")
     criterion = nn.BCEWithLogitsLoss()  # The loss function
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
     # Setup TensorBoard logging
     # writer = SummaryWriter(log_dir=log_path)
@@ -211,8 +211,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         for X, y in train_loader:
 
             X, y = X.to('cuda'), y.to('cuda')
-            print("X min: ", X.min())
-            print("y min: ", y.min())
 
             optimizer.zero_grad()
             output = model(X)
