@@ -13,7 +13,7 @@ from torch.utils.data import Dataset
 from pathlib import Path
 
 images_path = Path("/data/eurova/cumulus_database/numpy/melanoma/imgs_train.npy.gz")
-masks_path = Path("/data/eurova/cumulus_database/numpy/melanoma/imgs_masks_train.npy.gz")
+masks_path = Path("/data/eurova/cumulus_database/numpy/melanoma/imgs_mask_train.npy.gz")
 path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/skin_tf/")
 log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/skin_tf/")
 
@@ -232,7 +232,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 break
 
     # Save the training history
-    np.save(str(path_to_save / 'melanoma_base_history_.npy'), {'train_loss': train_loss, 'val_loss': val_loss})
+    # np.save(str(path_to_save / 'melanoma_base_history_.npy'), {'train_loss': train_loss, 'val_loss': val_loss})
 
 ### ======================== ###
 ### ======================== ###
