@@ -548,7 +548,7 @@ class SkinNet(nn.Module):
                 self.encoders.append(encoder_block(width * (2**(i - 1)), width * (2**i)))
 
         """ Decoder """
-        for i in range(0, depth - 3):
+        for i in range(0, depth):
 
             if i == 0:
                 self.decoders.insert(0, decoder_block(width * 2, width))
