@@ -583,7 +583,8 @@ class SkinNet(nn.Module):
         d.append(d_tmp)
 
         for i in range(len(self.decoders) - 1):
-
+            print(d[i].size())
+            print(s[-(i + 1)].size())
             d_tmp = self.decoders[i + 1](d[i], s[-(i + 1)])
             d.append(d_tmp)
 
