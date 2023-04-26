@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from torch.utils.data import Dataset
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 from pathlib import Path
 
@@ -183,7 +183,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Setup TensorBoard logging
-    writer = SummaryWriter(log_dir=log_path)
+    # writer = SummaryWriter(log_dir=log_path)
 
     # Early stopping setup
     patience_counter = 0
@@ -215,9 +215,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_loss /= len(val_loader)
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
-        
+
         # TensorBoard logging
-        writer.add_scalars('Loss', {'train': train_loss, 'val': val_loss}, epoch)
+        # writer.add_scalars('Loss', {'train': train_loss, 'val': val_loss}, epoch)
 
         # Check for early stopping
         if val_loss < best_val_loss:
