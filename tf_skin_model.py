@@ -190,7 +190,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize the model, loss function and optimizer
-    model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)
+    model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to('cuda')
     print("Model initialized...")
     criterion = nn.BCEWithLogitsLoss()  # The loss function
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -210,7 +210,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_dice = 0.0
         for X, y in train_loader:
 
-            print("X size: ", X.size()
+            X, y = X.to('cuda'), y.to('cuda')
+            print("X size: ", X.size())
             print("y size: ", y.size())
 
             optimizer.zero_grad()
