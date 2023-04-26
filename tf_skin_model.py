@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import gzip
 
+import matplotlib.pyplot as plt
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -21,7 +23,7 @@ IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
-epochs = 100
+epochs = 1
 patience = 500
 
 
@@ -100,6 +102,29 @@ class SkinTrainDataset(Dataset):
         mask = torch.from_numpy(mask).permute(2, 0, 1).float()  # Move the channel dimension to the front
 
         return img, mask
+
+def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path):
+    epochs = range(1, len(train_losses) + 1)
+
+    # Plot losses
+    plt.plot(epochs, train_losses, 'bo', label='Training loss')
+    plt.plot(epochs, val_losses, 'b', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig(fig_path + '/losses.png')
+    plt.close()
+
+    # Plot dices
+    plt.plot(epochs, train_dices, 'bo', label='Training dice')
+    plt.plot(epochs, val_dices, 'b', label='Validation dice')
+    plt.title('Training and validation dice')
+    plt.xlabel('Epochs')
+    plt.ylabel('Dice')
+    plt.legend()
+    plt.savefig(fig_path + '/dices.png')
+    plt.close()
 
 ### ======================== ###
 ### ======================== ###
@@ -206,6 +231,11 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     patience_counter = 0
     best_val_loss = float('inf')
 
+    train_dice_values = []
+    val_dice_values = []
+    train_loss_values = []
+    val_loss_values = []
+
     print("Training...")
     for epoch in range(epochs):
         # Train
@@ -258,6 +288,11 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_loss /= len(val_loader)
         val_dice /= len(val_loader)
 
+        train_loss_values.append(train_loss)
+        val_loss_values.append(val_loss)
+        train_dice_values.append(train_dice)
+        val_dice_values.append(val_dice)
+
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
 
         # TensorBoard logging
@@ -274,6 +309,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             if patience_counter >= patience:
                 print("Early stopping")
                 break
+        
+        save_path = '.'
+        plot_performance(train_loss, val_loss, train_dice_values, val_dice_values, save_path)
 
     # Save the training history
     # np.save(str(path_to_save / 'melanoma_base_history_.npy'), {'train_loss': train_loss, 'val_loss': val_loss})
