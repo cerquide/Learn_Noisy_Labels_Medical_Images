@@ -492,12 +492,12 @@ class conv_block_skin(nn.Module):
 
     def forward(self, inputs):
         x = self.conv1(inputs)
-        x = self.bn1(x)
+        # x = self.bn1(x)
         x = self.relu(x)
         x = self.dropout(x)
 
         x = self.conv2(x)
-        x = self.bn2(x)
+        # x = self.bn2(x)
         x = self.relu(x)
 
         return x
@@ -519,12 +519,12 @@ class decoder_block(nn.Module):
     def __init__(self, in_c, out_c):
         super().__init__()
 
-        self.up = nn.ConvTranspose2d(in_c, out_c, kernel_size=2, stride=2, padding=0)
+        self.up = nn.ConvTranspose2d(in_c, out_c, kernel_size=2, stride=2)
         self.conv = conv_block_skin(out_c+out_c, out_c)
 
     def forward(self, inputs, skip):
         x = self.up(inputs)
-        x = torch.cat([x, skip], axis=1)
+        x = torch.cat([x, skip], dim = 1)
         x = self.conv(x)
         
         return x

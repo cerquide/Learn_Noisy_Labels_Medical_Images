@@ -1899,57 +1899,14 @@ def calculate_cm(pred, true):
 
 #     return dice.item()
 
-def dice_coef_custom(preds, targets):
-    """ This is a normal dice coef function for binary segmentation.
-    1. Dice score for the each sample in the batch.
-    2. Logits directly.
 
-    Args:
-        preds: output of the segmentation network
-        targets: ground truth label
+def dice_coef_custom(y_true, y_pred, smooth = 1e-4):
+    
+    intersection = torch.sum(y_true * y_pred, dim = [1, 2, 3])
+    union = torch.sum(y_true, dim = [1, 2, 3]) + torch.sum(y_pred, dim = [1, 2, 3])
+    dice = torch.mean((2. * intersection + smooth) / (union + smooth), dim = 0)
 
-    Returns:
-        dice
-    """
-    ### Sanity Check ###
-    ### 1. Perfect P ###
-    # preds = torch.tensor([[[[1, 0],
-    #                         [0, 1]],
-    #                        [[0, 1],
-    #                         [1, 0]]],
-    #                       [[[1, 0],
-    #                         [0, 1]],
-    #                        [[0, 1],
-    #                         [1, 0]]]], dtype = torch.float32, device = device)
-    # targets = torch.tensor([[[[0, 1],
-    #                               [1, 0]]],
-    #                             [[[0, 1],
-    #                               [1, 0]]]], dtype = torch.long, device = device)
- 
-    # print("Probs size: ", preds.size())
-    # print("Targets_int size: ", targets.size())
-    #probs = probs.unsqueeze(1)
-    ### 2. Worst Pre ###
-    # pass
-    ### ------------ ###
-
-    batch_size, _, h, w = targets.size()
-
-    _, preds = torch.max(preds, dim = 1, keepdim = True)
-
-    preds_flat = preds.view(batch_size, -1)
-    targets_flat = targets.view(batch_size, -1)
-
-    intersection = (preds_flat * targets_flat).sum(dim = 1)
-
-    preds_count = preds_flat.sum(dim = 1)
-    targets_count = targets_flat.sum(dim = 1)
-
-    dice = (2 * intersection + 1e-6) / (preds_count + targets_count + 1e-6)
-
-    # print("Dice score (custom) = ", dice.mean().item())
-
-    return dice.mean().item()
+    return dice
 
 def dice_coef_default(input, target):
     """ This is a normal dice coef function for binary segmentation.

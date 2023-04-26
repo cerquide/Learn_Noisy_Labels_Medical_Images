@@ -135,7 +135,7 @@ if __name__ == '__main__':
                 repeat = 1,
                 train_batchsize = 16,
                 validate_batchsize = 1,
-                num_epochs = 200,
+                num_epochs = 300,
                 learning_rate = 1e-3,
                 width = 16,
                 depth = 4,
