@@ -138,7 +138,7 @@ if __name__ == '__main__':
                 num_epochs = 20,
                 learning_rate = 1e-3,
                 width = 16,
-                depth = 5,
+                depth = 4,
                 augmentation='all_flip',
                 loss_f='ce',
                 path_name = '/data/eurova/multi_annotators_project/LNLMI/Results/skin/' + time.strftime("%Y%m%d-%H%M%S"),
