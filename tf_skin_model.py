@@ -23,7 +23,7 @@ IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
-epochs = 1
+epochs = 100
 patience = 500
 
 
@@ -113,6 +113,7 @@ def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path)
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
+    plt.ylim([0., 1.])
     plt.savefig(fig_path + '/losses.png')
     plt.close()
 
@@ -123,6 +124,7 @@ def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path)
     plt.xlabel('Epochs')
     plt.ylabel('Dice')
     plt.legend()
+    plt.ylim([0., 1.])
     plt.savefig(fig_path + '/dices.png')
     plt.close()
 
@@ -312,6 +314,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         
         save_path = '.'
         plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
+        print("Figures were saved.")
 
     # Save the training history
     # np.save(str(path_to_save / 'melanoma_base_history_.npy'), {'train_loss': train_loss, 'val_loss': val_loss})
