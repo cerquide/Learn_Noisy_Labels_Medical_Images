@@ -107,24 +107,30 @@ def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path)
     epochs = range(1, len(train_losses) + 1)
 
     # Plot losses
-    plt.plot(epochs, train_losses, 'bo', label='Training loss')
-    plt.plot(epochs, val_losses, 'b', label='Validation loss')
+    plt.plot(epochs, train_losses, 'b', label='Training loss')
+    plt.plot(epochs, val_losses, 'r', label='Validation loss')
     plt.title('Training and validation loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
     plt.ylim([0., 1.])
+    plt.xticks(range(len(train_losses)))
+    plt.yticks([0.1 * i for i in range(11)])
+    plt.grid(True)
     plt.savefig(fig_path + '/losses.png')
     plt.close()
 
     # Plot dices
-    plt.plot(epochs, train_dices, 'bo', label='Training dice')
-    plt.plot(epochs, val_dices, 'b', label='Validation dice')
+    plt.plot(epochs, train_dices, 'b', label='Training dice')
+    plt.plot(epochs, val_dices, 'r', label='Validation dice')
     plt.title('Training and validation dice')
     plt.xlabel('Epochs')
     plt.ylabel('Dice')
     plt.legend()
     plt.ylim([0., 1.])
+    plt.xticks(range(len(train_dices)))
+    plt.yticks([0.1 * i for i in range(11)])
+    plt.grid(True)
     plt.savefig(fig_path + '/dices.png')
     plt.close()
 
@@ -312,9 +318,11 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 print("Early stopping")
                 break
         
-    save_path = '.'
+    save_path = './tf_skin'
     plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
     print("Figures were saved.")
+
+    torch.save(model.state_dict(), save_path + '/skin_Final_dict.pt')
 
     # Save the training history
     # np.save(str(path_to_save / 'melanoma_base_history_.npy'), {'train_loss': train_loss, 'val_loss': val_loss})
