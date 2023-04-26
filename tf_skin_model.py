@@ -29,6 +29,15 @@ patience = 500
 ### ======= Utils.py ======= ###
 ### ======================== ###
 
+def dice_coefficient(pred, target):
+
+    smooth = 1e-6
+    pred_flat = pred.view(-1)
+    target_flat = target.view(-1)
+    intersection = (pred_flat * target_flat).sum()
+
+    return (2.0 * intersection + smooth) / (pred_flat.sum() + target_flat.sum() + smooth)
+
 def preprocessor(input_img, img_rows, img_cols):
     """
     Resize input images to constants sizes
@@ -198,28 +207,46 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         print("Training...")
         model.train()
         train_loss = 0.0
+        train_dice = 0.0
         for X, y in train_loader:
             optimizer.zero_grad()
             output = model(X)
+
+            # Calculate the Loss
             loss = criterion(output, y)
+
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
 
+            # Calculate the Dice
+            pred = torch.sigmoid(output) > 0.5
+            train_dice_ = dice_coefficient(pred.float(), y)
+            train_dice += train_dice_.item()
+
         train_loss /= len(train_loader)
+        train_dice /= len(train_loader)
 
         # Validate
         model.eval()
         val_loss = 0.0
+        val_dice = 0.0
         with torch.no_grad():
             for X, y in val_loader:
+                # Calculate the Loss 
                 output = model(X)
                 loss = criterion(output, y)
                 val_loss += loss.item()
 
-        val_loss /= len(val_loader)
+                # Calculate the Dice 
+                pred = torch.sigmoid(output) > 0.5
+                dice = dice_coefficient(pred.float(), y)
+                val_dice += dice.item()
 
-        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}')
+        val_loss /= len(val_loader)
+        val_dice /= len(val_loader)
+
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
 
         # TensorBoard logging
         # writer.add_scalars('Loss', {'train': train_loss, 'val': val_loss}, epoch)
