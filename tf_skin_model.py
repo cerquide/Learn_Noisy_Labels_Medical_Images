@@ -121,7 +121,7 @@ class UNet(nn.Module):
 
         self.middle = conv_block(128, 256, dropout=0.3)
 
-        self.dec4 = conv_block(256 + 128 * 2, 128, dropout=0.2)
+        self.dec4 = conv_block(256 + 128, 128, dropout=0.2)
         self.dec3 = conv_block(128 + 64, 64, dropout=0.2)
         self.dec2 = conv_block(64 + 32, 32, dropout=0.1)
         self.dec1 = conv_block(32 + 16, 16, dropout=0.1)
@@ -138,17 +138,17 @@ class UNet(nn.Module):
         enc2 = self.enc2(F.max_pool2d(enc1, 2))
         enc3 = self.enc3(F.max_pool2d(enc2, 2))
         enc4 = self.enc4(F.max_pool2d(enc3, 2))
-
+        print(enc4.size())
         middle = self.middle(F.max_pool2d(enc4, 2))
 
         up4 = self.upconv4(middle)
-        dec4 = self.dec4(torch.cat([up4, F.interpolate(enc4, scale_factor=2, mode='bilinear', align_corners=False)], 1))
+        dec4 = self.dec4(torch.cat([up4, enc4], 1))
         up3 = self.upconv3(dec4)
-        dec3 = self.dec3(torch.cat([up3, F.interpolate(enc3, scale_factor=2, mode='bilinear', align_corners=False)], 1))
+        dec3 = self.dec3(torch.cat([up3, enc3], 1))
         up2 = self.upconv2(dec3)
-        dec2 = self.dec2(torch.cat([up2, F.interpolate(enc2, scale_factor=2, mode='bilinear', align_corners=False)], 1))
+        dec2 = self.dec2(torch.cat([up2, enc2], 1))
         up1 = self.upconv1(dec2)
-        dec1 = self.dec1(torch.cat([up1, F.interpolate(enc1, scale_factor=2, mode='bilinear', align_corners=False)], 1))
+        dec1 = self.dec1(torch.cat([up1, enc1], 1))
 
         return torch.sigmoid(self.output(dec1))
 
