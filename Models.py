@@ -488,11 +488,13 @@ class conv_block_skin(nn.Module):
         self.bn2 = nn.BatchNorm2d(out_c)
 
         self.relu = nn.ReLU()
+        self.dropout = nn.Dropout2d(0.1)
 
     def forward(self, inputs):
         x = self.conv1(inputs)
         x = self.bn1(x)
         x = self.relu(x)
+        x = self.dropout(x)
 
         x = self.conv2(x)
         x = self.bn2(x)
