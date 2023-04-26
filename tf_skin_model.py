@@ -135,18 +135,14 @@ class UNet(nn.Module):
 
     def forward(self, x):
         enc1 = self.enc1(x)
-        print(enc1.size())
         enc2 = self.enc2(F.max_pool2d(enc1, 2))
-        print(enc2.size())
         enc3 = self.enc3(F.max_pool2d(enc2, 2))
-        print(enc3.size())
         enc4 = self.enc4(F.max_pool2d(enc3, 2))
-        print(enc4.size())
+
         middle = self.middle(F.max_pool2d(enc4, 2))
-        print(middle.size())
+
         up4 = self.upconv4(middle)
         dec4 = self.dec4(torch.cat([up4, enc4], 1))
-        print(dec4.size())
         up3 = self.upconv3(dec4)
         dec3 = self.dec3(torch.cat([up3, enc3], 1))
         up2 = self.upconv2(dec3)
@@ -174,6 +170,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     # Load the dataset
     dataset = SkinTrainDataset(images_path, masks_path, IMG_WIDTH, IMG_HEIGHT)
+    print("Dataset was loaded...")
+    print("dataset size: ", dataset.size())
+
     train_len = int(len(dataset) * (1 - val_split))
     val_len = len(dataset) - train_len
     train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
@@ -183,6 +182,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     # Initialize the model, loss function and optimizer
     model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS)
+    print("Model initialized...")
     criterion = nn.BCEWithLogitsLoss()  # The loss function
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -195,6 +195,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     for epoch in range(epochs):
         # Train
+        print("Training...")
         model.train()
         train_loss = 0.0
         for X, y in train_loader:
