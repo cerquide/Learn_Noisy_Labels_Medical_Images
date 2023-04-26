@@ -64,7 +64,7 @@ def load_skin_train_data(imgs_path, masks_path, img_width, img_height):
     X_train = preprocessor(X_train, img_width, img_height)
     y_train = preprocessor(y_train, img_width, img_height)
 
-    X_train = X_train.astype('float32')
+    X_train = X_train.astype('float32') / 255.
     mean = np.mean(X_train)
     std = np.std(X_train)
 
