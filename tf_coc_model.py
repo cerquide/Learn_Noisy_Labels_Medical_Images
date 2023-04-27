@@ -35,6 +35,9 @@ val_split = 0.1
 epochs = 10
 patience = 500
 
+TL = True
+weights_path = './tf_skin/skin_Final_dict.pt'
+
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
     path_to_save.mkdir(exist_ok=True)
 
@@ -57,6 +60,13 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     # Initialize the model, loss function and optimizer
     model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to('cuda')
+
+    if TL:
+        pretrained_weights = torch.load(weights_path)
+        model.load_state_dict(pretrained_weights, strict = False)
+        model.eval()
+        print("Weights have been loaded succesfully...")
+
     print("Model initialized...")
     criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
