@@ -12,6 +12,7 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
+IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 3
 
 def dice_coefficient(pred, target):
 
@@ -85,7 +86,7 @@ class SkinTrainDataset(Dataset):
 
         return img, mask
     
-def load_coc_train_data(imgs_path, masks_path, img_width, img_height):
+def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height = IMG_HEIGHT):
     
     IMG_SIZE = (img_width, img_height, 1)
     # Load input image
