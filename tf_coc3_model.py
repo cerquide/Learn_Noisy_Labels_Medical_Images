@@ -39,7 +39,7 @@ val_split = 0.05
 epochs = 10
 patience = 500
 
-TL = False
+TL = True
 weights_path = './tf_coc/coc_Final_dict.pt'
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
