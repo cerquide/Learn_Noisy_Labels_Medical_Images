@@ -47,7 +47,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     print(images_path)
     print(masks_path)
     # Load the dataset
-    dataset = COC3TrainDataset(images_path, masks_path, IMG_WIDTH, IMG_HEIGHT)
+    dataset = COC3TrainDataset(images_path, IMG_WIDTH, IMG_HEIGHT)
     print("Dataset was loaded...")
 
     train_len = int(len(dataset) * (1 - val_split))
@@ -94,3 +94,5 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         for X, y_AR, y_HS, y_SG, y_avrg in train_loader:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to('cuda'), y_AR.to('cuda'), y_HS.to('cuda'), y_SG.to('cuda'), y_avrg.to('cuda')
+
+train_model(images_path, masks_path, path_to_save, log_path)
