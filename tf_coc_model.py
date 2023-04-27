@@ -38,6 +38,8 @@ patience = 500
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
     path_to_save.mkdir(exist_ok=True)
 
+    print(images_path)
+    print(masks_path)
     # Load the dataset
     dataset = COCTrainDataset(images_path, masks_path, IMG_WIDTH, IMG_HEIGHT)
     print("Dataset was loaded...")
