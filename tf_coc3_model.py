@@ -95,4 +95,12 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to('cuda'), y_AR.to('cuda'), y_HS.to('cuda'), y_SG.to('cuda'), y_avrg.to('cuda')
 
+            print("X size: ", X.size())
+            print("AR size: ", y_AR.size())
+            print("HS size: ", y_HS.size())
+            print("SG size: ", y_SG.size())
+            print("avrg size: ", y_avrg.size())
+
+            break
+
 train_model(images_path, masks_path, path_to_save, log_path)
