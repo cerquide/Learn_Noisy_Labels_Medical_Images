@@ -28,7 +28,7 @@ masks_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/
 path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc_tf/")
 log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/coc_tf/")
 
-IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 3
+IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
