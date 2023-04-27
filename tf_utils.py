@@ -96,7 +96,7 @@ class COCTrainDataset(Dataset):
 
     def __len__(self):
         length = len(glob.glob(os.path.join(self.imgs_folder, '*.tif')))
-        print(length)
+        # print(length)
 
         return length
     

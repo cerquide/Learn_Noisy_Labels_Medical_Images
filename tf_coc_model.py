@@ -49,6 +49,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     val_len = len(dataset) - train_len
     train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
 
+    print("Train length: ", train_len)
+    print("Val length: ", val_len)
+
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
