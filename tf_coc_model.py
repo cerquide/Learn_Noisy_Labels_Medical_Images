@@ -32,7 +32,7 @@ IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 3
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
-epochs = 2
+epochs = 10
 patience = 500
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
