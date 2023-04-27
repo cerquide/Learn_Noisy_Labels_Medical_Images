@@ -12,7 +12,7 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
-IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 3
+IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 
 def dice_coefficient(pred, target):
 
