@@ -95,7 +95,10 @@ class COCTrainDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        len(glob.glob(os.path.join(self.imgs_folder, '*.tif')))
+        length = len(glob.glob(os.path.join(self.imgs_folder, '*.tif')))
+        print(length)
+
+        return length
     
     def __getitem__(self, idx):
         # img = self.imgs[idx]
@@ -113,7 +116,6 @@ class COCTrainDataset(Dataset):
 
         image = tiff.imread(all_images[idx])
         label = tiff.imread(all_labels[idx])
-        print(image)
 
         image = np.array(image, dtype = 'float32') / 255.
         label = np.array(label, dtype = 'float32') / 255.
