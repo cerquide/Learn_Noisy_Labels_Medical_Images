@@ -23,7 +23,7 @@ from tf_dataloaders import COC3TrainDataset
 ### ======================== ###
 
 ### ======= Models.py ======= ###
-from tf_models import initialize_model
+from tf_models import initialize_model3
 ### ======================== ###
 
 images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw")
@@ -62,7 +62,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
 
     # Initialize the model, loss function and optimizer
-    model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to(DEVICE)
+    model = initialize_model3(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to(DEVICE)
 
     if TL:
         pretrained_weights = torch.load(weights_path)
@@ -97,7 +97,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
             optimizer.zero_grad()
-            output = model(X)
+            output, output_cms = model(X)
 
             # Calculate the Loss
             loss = dice_loss(output, y_avrg)
@@ -143,5 +143,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         # val_dice_values.append(val_dice)
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
-
+    print(len(output_cms))
+    
 train_model(images_path, masks_path, path_to_save, log_path)
