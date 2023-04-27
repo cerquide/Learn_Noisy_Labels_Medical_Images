@@ -94,9 +94,9 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     input_image = transforms.Resize(IMG_SIZE)(input_image)
     input_image = transforms.Grayscale(num_output_channels = IMG_CHANNELS)(input_image)
     input_image = transforms.ToTensor()(input_image)
-    print("img max:", input_image.max())
-    print("img min:", input_image.min())
-    input_image = input_image / 255.
+    # print("img max:", input_image.max())
+    # print("img min:", input_image.min())
+    # input_image = input_image / 255.
     # input_image = transforms.Normalize(mean=[0.485, 0.456, 0.406],
     #                                     std=[0.229, 0.224, 0.225])(input_image)
     # print("Image size:", input_image.size())
@@ -106,9 +106,9 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     input_mask = transforms.Resize(IMG_SIZE)(input_mask)
     input_mask = transforms.Grayscale(num_output_channels = IMG_CHANNELS)(input_mask)
     input_mask = transforms.ToTensor()(input_mask)
-    print("mask max:", input_mask.max())
-    print("mask min:", input_mask.min())
-    input_mask = input_mask / 255.
+    # print("mask max:", input_mask.max())
+    # print("mask min:", input_mask.min())
+    # input_mask = input_mask / 255.
     # print("Mask size:", input_mask.size())
 
     return input_image, input_mask
