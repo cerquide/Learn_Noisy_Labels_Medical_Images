@@ -23,17 +23,17 @@ from tf_utils import plot_performance
 from tf_models import initialize_model
 ### ======================== ###
 
-# images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/images")
-# masks_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/avrg")
-images_path = Path("/data/eurova/cumulus_database/oocytes_roi/immature")
-masks_path = Path("/data/eurova/cumulus_database/masks/avrg_roi/immature")
+images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/images")
+masks_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/avrg")
+# images_path = Path("/data/eurova/cumulus_database/oocytes_roi/immature")
+# masks_path = Path("/data/eurova/cumulus_database/masks/avrg_roi/immature")
 path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc_tf/")
 log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/coc_tf/")
 
 IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
-val_split = 0.1
+val_split = 0.05
 epochs = 1
 patience = 500
 
