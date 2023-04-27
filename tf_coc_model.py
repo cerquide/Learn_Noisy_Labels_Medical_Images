@@ -87,8 +87,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             output = model(X)
 
             # Calculate the Loss
-            loss = criterion(output, y)
-            # loss = dice_loss(output, y)
+            # loss = criterion(output, y)
+            loss = dice_loss(output, y)
 
             loss.backward()
             optimizer.step()
@@ -113,8 +113,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
                 # Calculate the Loss 
                 output = model(X)
-                loss = criterion(output, y)
-                # loss = dice_loss(output, y)
+                # loss = criterion(output, y)
+                loss = dice_loss(output, y)
                 val_loss += loss.item()
 
                 # Calculate the Dice 
