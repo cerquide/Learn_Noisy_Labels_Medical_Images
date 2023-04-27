@@ -32,7 +32,7 @@ IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.1
-epochs = 10
+epochs = 1
 patience = 500
 
 TL = True
