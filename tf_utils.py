@@ -99,7 +99,7 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     # input_image = input_image / 255.
     # input_image = transforms.Normalize(mean=[0.485, 0.456, 0.406],
     #                                     std=[0.229, 0.224, 0.225])(input_image)
-    print("Image size:", input_image.size())
+    # print("Image size:", input_image.size())
 
     # Load input mask
     input_mask = Image.open(masks_path)
@@ -109,7 +109,7 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     # print("mask max:", input_mask.max())
     # print("mask min:", input_mask.min())
     # input_mask = input_mask / 255.
-    print("Mask size:", input_mask.size())
+    # print("Mask size:", input_mask.size())
 
     return input_image, input_mask
 
