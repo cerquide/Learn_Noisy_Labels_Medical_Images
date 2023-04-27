@@ -108,7 +108,7 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     input_mask = transforms.ToTensor()(input_mask)
     # print("mask max:", input_mask.max())
     # print("mask min:", input_mask.min())
-    # input_mask = input_mask / 255.
+    input_mask = input_mask / 255.
     # print("Mask size:", input_mask.size())
 
     return input_image, input_mask
