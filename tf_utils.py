@@ -6,9 +6,11 @@ import tifffile as tiff
 import os
 
 import matplotlib.pyplot as plt
+from PIL import Image
 
 import torch
 from torch.utils.data import Dataset
+import torchvision.transforms as transforms
 
 
 def dice_coefficient(pred, target):
@@ -84,7 +86,23 @@ class SkinTrainDataset(Dataset):
         return img, mask
     
 def load_coc_train_data(imgs_path, masks_path, img_width, img_height):
-    pass
+    
+    IMG_SIZE = (img_width, img_height, 1)
+    # Load input image
+    input_image = Image.open(imgs_path)
+    input_image = transforms.Resize(IMG_SIZE)(input_image)
+    input_image = transforms.ToTensor()(input_image)
+    input_image = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                        std=[0.229, 0.224, 0.225])(input_image)
+
+    # Load input mask
+    input_mask = Image.open(masks_path)
+    input_mask = transforms.Resize(IMG_SIZE)(input_mask)
+    input_mask = transforms.Grayscale(num_output_channels=1)(input_mask)
+    input_mask = transforms.ToTensor()(input_mask)
+    input_mask = input_mask / 255.0
+
+    return input_image, input_mask
 
 class COCTrainDataset(Dataset):
     def __init__(self, imgs_path, masks_path, img_width, img_height, transform = None):
@@ -114,12 +132,16 @@ class COCTrainDataset(Dataset):
         all_labels = glob.glob(os.path.join(self.msks_folder, '*.tif'))
         all_labels.sort()
 
-        image = tiff.imread(all_images[idx])
-        label = tiff.imread(all_labels[idx])
+        # image = tiff.imread(all_images[idx])
+        # label = tiff.imread(all_labels[idx])
 
-        image = np.array(image, dtype = 'float32') / 255.
-        label = np.array(label, dtype = 'float32') / 255.
-        label = np.expand_dims(label, axis = -1)
+        image_path = all_images[idx]
+        mask_path = all_labels[idx]
+        image, label = load_coc_train_data(image_path, mask_path)
+
+        # image = np.array(image, dtype = 'float32') / 255.
+        # label = np.array(label, dtype = 'float32') / 255.
+        # label = np.expand_dims(label, axis = -1)
         # print("Image shape:", image.shape)
         # print("Label shape:", label.shape)
         
