@@ -119,6 +119,8 @@ class COCTrainDataset(Dataset):
 
         image = np.array(image, dtype = 'float32') / 255.
         label = np.array(label, dtype = 'float32') / 255.
+        print("Image shape:", image.shape)
+        print("Label shape:", label.shape)
         
         image = torch.from_numpy(image).permute(2, 0, 1).float()
         label = torch.from_numpy(label).permute(2, 0, 1).float()
