@@ -15,6 +15,7 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
+from tf_utils import noisy_label_loss
 from tf_utils import plot_performance
 ### ======================== ###
 
@@ -90,21 +91,33 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     for epoch in range(epochs):
         # Train
         model.train()
+
         train_loss = 0.0
+        train_loss_ce = 0.0
+        train_loss_trace = 0.0
         train_dice = 0.0
+
         for X, y_AR, y_HS, y_SG, y_avrg in train_loader:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
+
+            labels_all = []
+            labels_all.append(y_AR)
+            labels_all.append(y_HS)
+            labels_all.append(y_SG)
 
             optimizer.zero_grad()
             output, output_cms = model(X)
 
             # Calculate the Loss
             loss = dice_loss(output, y_avrg)
+            loss, loss_ce, loss_trace = noisy_label_loss(output, output_cms, labels_all)
 
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
+            train_loss_ce += loss_ce.item()
+            train_loss_trace += loss_trace.item()
 
             # Calculate the Dice
             pred = torch.sigmoid(output) > 0.5
@@ -112,6 +125,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             train_dice += train_dice_.item()
 
         train_loss /= len(train_loader)
+        train_loss_ce /= len(train_loader)
+        train_loss_trace /= len(train_loader)
         train_dice /= len(train_loader)
 
         # Validate
@@ -142,7 +157,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         # train_dice_values.append(train_dice)
         # val_dice_values.append(val_dice)
 
-        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss CE: {train_loss_ce:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
     print(len(output_cms))
-    
+
 train_model(images_path, masks_path, path_to_save, log_path)

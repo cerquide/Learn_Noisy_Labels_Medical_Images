@@ -19,6 +19,49 @@ def dice_loss(pred, target):
 
     return 1 - dice_coefficient(pred, target)
 
+
+### GCM ###
+
+def noisy_label_loss(pred, cms, labels, alpha = 0.1):
+
+    main_loss = 0.0
+    regularisation = 0.0
+    b, c, h, w = pred.size()
+
+    pred_norm = torch.sigmoid(pred)
+   
+    # b x c x h x w ---> b*h*w x c x 1
+    pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
+
+    for cm, label_noisy in zip(cms, labels):
+        # cm: learnt confusion matrix for each noisy label, b x c**2 x h x w
+        # label_noisy: noisy label, b x h x w
+        
+        # b x c**2 x h x w ---> b*h*w x c x c
+        cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
+
+        # normalisation along the rows:
+        cm = cm / cm.sum(1, keepdim = True)
+
+        # matrix multiplication to calculate the predicted noisy segmentation:
+        # cm: b*h*w x c x c
+        # pred_noisy: b*h*w x c x 1
+        
+        pred_noisy = torch.bmm(cm, pred_norm).view(b*h*w, c)
+
+        pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
+
+        loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
+        main_loss += loss_current
+        regularisation += torch.trace(torch.transpose(torch.sum(cm, dim = 0), 0, 1)).sum() / (b * h * w)
+
+    regularisation = alpha * regularisation
+    loss = main_loss + regularisation
+
+    return loss, main_loss, regularisation
+
+
+### Plotting ###
 def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path):
     epochs = range(1, len(train_losses) + 1)
 
