@@ -31,10 +31,10 @@ path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc
 log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/skin/coc_tf/")
 
 IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
-learning_rate = 1e-4
+learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
-epochs = 10
+epochs = 30
 patience = 500
 
 TL = True
