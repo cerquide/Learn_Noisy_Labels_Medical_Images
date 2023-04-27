@@ -113,6 +113,7 @@ class COCTrainDataset(Dataset):
 
         image = tiff.imread(all_images[idx])
         label = tiff.imread(all_labels[idx])
+        print(image)
 
         image = np.array(image, dtype = 'float32') / 255.
         label = np.array(label, dtype = 'float32') / 255.
