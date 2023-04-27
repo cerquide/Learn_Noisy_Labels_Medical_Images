@@ -24,7 +24,8 @@ def noisy_label_loss(pred, cms, labels, alpha=0.1):
     main_loss = 0.0
     regularisation = 0.0
     b, c, h, w = pred.size()
-
+    print("pred size: ", pred.size())
+    print("cm size: ", cms[0].size() )
     # if 2 classes
     binary = True
 
