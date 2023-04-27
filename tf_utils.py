@@ -96,14 +96,16 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     input_image = transforms.ToTensor()(input_image)
     input_image = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                         std=[0.229, 0.224, 0.225])(input_image)
-    print("Image size:", input_image.size())
+    # print("Image size:", input_image.size())
+
     # Load input mask
     input_mask = Image.open(masks_path)
     input_mask = transforms.Resize(IMG_SIZE)(input_mask)
     input_mask = transforms.Grayscale(num_output_channels = IMG_CHANNELS)(input_mask)
     input_mask = transforms.ToTensor()(input_mask)
     input_mask = input_mask / 255.0
-    print("Mask size:", input_mask.size())
+    # print("Mask size:", input_mask.size())
+    
     return input_image, input_mask
 
 class COCTrainDataset(Dataset):
