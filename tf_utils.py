@@ -88,7 +88,7 @@ class SkinTrainDataset(Dataset):
     
 def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height = IMG_HEIGHT):
     
-    IMG_SIZE = (img_width, img_height, 1)
+    IMG_SIZE = (img_width, img_height)
     # Load input image
     input_image = Image.open(imgs_path)
     input_image = transforms.Resize(IMG_SIZE)(input_image)
