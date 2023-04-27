@@ -108,7 +108,7 @@ def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height
     input_mask = transforms.ToTensor()(input_mask)
     # print("mask max:", input_mask.max())
     # print("mask min:", input_mask.min())
-    input_mask = input_mask / 255.
+    # input_mask = input_mask / 255.
     # print("Mask size:", input_mask.size())
 
     return input_image, input_mask
@@ -148,14 +148,16 @@ class COCTrainDataset(Dataset):
         mask_path = all_labels[idx]
         image, label = load_coc_train_data(image_path, mask_path)
 
-        # image = np.array(image, dtype = 'float32') / 255.
-        # label = np.array(label, dtype = 'float32') / 255.
+        image = np.array(image, dtype = 'float32') #/ 255.
+        label = np.array(label, dtype = 'float32') #/ 255.
         # label = np.expand_dims(label, axis = -1)
         # print("Image shape:", image.shape)
         # print("Label shape:", label.shape)
         
         # image = torch.from_numpy(image).permute(2, 0, 1).float()
         # label = torch.from_numpy(label).permute(2, 0, 1).float()
+        image = torch.from_numpy(image).float()
+        label = torch.from_numpy(label).float()
 
         return image, label
 
