@@ -15,8 +15,11 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
-from tf_utils import SkinTrainDataset
 from tf_utils import plot_performance
+### ======================== ###
+
+### ======= Data_Loader.py ======= ###
+from tf_dataloaders import SkinTrainDataset
 ### ======================== ###
 
 ### ======= Models.py ======= ###
