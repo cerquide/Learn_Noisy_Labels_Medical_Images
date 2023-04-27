@@ -34,10 +34,10 @@ IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
-epochs = 30
+epochs = 50
 patience = 500
 
-TL = True
+TL = False
 weights_path = './tf_skin/skin_Final_dict.pt'
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
@@ -144,5 +144,21 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
 
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            patience_counter = 0
+            torch.save(model.state_dict(), path_to_save / 'coc_base_weights.pth')
+        else:
+            patience_counter += 1
+
+            if patience_counter >= patience:
+                print("Early stopping")
+                break
+        
+    save_path = './tf_coc'
+    plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
+    print("Figures were saved.")
+
+    torch.save(model.state_dict(), save_path + '/coc_Final_dict.pt')
 
 train_model(images_path, masks_path, path_to_save, log_path)
