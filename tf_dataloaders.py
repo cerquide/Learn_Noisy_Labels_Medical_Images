@@ -171,13 +171,13 @@ class COC3TrainDataset(Dataset):
 
         self.transform = transform
 
-        self.image_folder = dataset_location + '/images'
+        self.image_folder = str(dataset_location) + '/images'
 
-        self.label_AR_folder = dataset_location + '/AR'
-        self.label_HS_folder = dataset_location + '/HS'
-        self.label_SG_folder = dataset_location + '/SG'
+        self.label_AR_folder = str(dataset_location) + '/AR'
+        self.label_HS_folder = str(dataset_location) + '/HS'
+        self.label_SG_folder = str(dataset_location) + '/SG'
 
-        self.label_avrg_folder = dataset_location + '/avrg'
+        self.label_avrg_folder = str(dataset_location) + '/avrg'
         
         print("Gent data loaded from Utilis.py as .npy.gz format ...")
 
