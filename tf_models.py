@@ -85,7 +85,7 @@ class gcm_layers(nn.Module):
     
 class GCM_UNet(nn.Module):
     def __init__(self, img_width, img_height, img_channels):
-        super(UNet, self).__init__()
+        super(GCM_UNet, self).__init__()
 
         def conv_block(in_channels, out_channels, dropout=0.0):
             return nn.Sequential(
