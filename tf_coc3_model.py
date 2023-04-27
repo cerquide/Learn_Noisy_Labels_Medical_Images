@@ -32,6 +32,7 @@ path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc
 log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc3_tf/")
 
 IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
+DEVICE = 'cuda'
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
@@ -61,7 +62,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
 
     # Initialize the model, loss function and optimizer
-    model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to('cuda')
+    model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to(DEVICE)
 
     if TL:
         pretrained_weights = torch.load(weights_path)
@@ -93,14 +94,57 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_dice = 0.0
         for X, y_AR, y_HS, y_SG, y_avrg in train_loader:
 
-            X, y_AR, y_HS, y_SG, y_avrg = X.to('cuda'), y_AR.to('cuda'), y_HS.to('cuda'), y_SG.to('cuda'), y_avrg.to('cuda')
+            X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
-            print("X size: ", X.size())
-            print("AR size: ", y_AR.size())
-            print("HS size: ", y_HS.size())
-            print("SG size: ", y_SG.size())
-            print("avrg size: ", y_avrg.size())
+            optimizer.zero_grad()
+            output = model(X)
 
-            break
+            # Calculate the Loss
+            loss = dice_loss(output, y_avrg)
+
+            loss.backward()
+            optimizer.step()
+            train_loss += loss.item()
+
+            # Calculate the Dice
+            pred = torch.sigmoid(output) > 0.5
+            train_dice_ = dice_coefficient(pred.float(), y_avrg)
+            train_dice += train_dice_.item()
+
+        train_loss /= len(train_loader)
+        train_dice /= len(train_loader)
+
+        # Validate
+        model.eval()
+        val_loss = 0.0
+        val_dice = 0.0
+        # with torch.no_grad():
+        #     for X, y in val_loader:
+
+        #         X, y = X.to('cuda'), y.to('cuda')
+
+        #         # Calculate the Loss 
+        #         output = model(X)
+        #         # loss = criterion(output, y)
+        #         loss = dice_loss(output, y)
+        #         val_loss += loss.item()
+
+        #         # Calculate the Dice 
+        #         pred = torch.sigmoid(output) > 0.5
+        #         dice = dice_coefficient(pred.float(), y)
+        #         val_dice += dice.item()
+
+        # val_loss /= len(val_loader)
+        # val_dice /= len(val_loader)
+
+        # train_loss_values.append(train_loss)
+        # val_loss_values.append(val_loss)
+        # train_dice_values.append(train_dice)
+        # val_dice_values.append(val_dice)
+
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
+
+
+        break
 
 train_model(images_path, masks_path, path_to_save, log_path)
