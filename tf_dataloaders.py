@@ -183,7 +183,7 @@ class COC3TrainDataset(Dataset):
 
     def __len__(self):
         
-        length = len(glob.glob(os.path.join(self.imgs_folder, '*.tif')))
+        length = len(glob.glob(os.path.join(self.image_folder, '*.tif')))
 
         return length
     
