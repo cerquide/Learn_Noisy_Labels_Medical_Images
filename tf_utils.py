@@ -148,8 +148,8 @@ class COCTrainDataset(Dataset):
         mask_path = all_labels[idx]
         image, label = load_coc_train_data(image_path, mask_path)
 
-        image = np.array(image, dtype = 'float32') #/ 255.
-        label = np.array(label, dtype = 'float32') / 255.
+        image = np.array(image, dtype = 'float32') / 255.
+        label = np.array(label, dtype = 'float32') #/ 255.
         # label = np.expand_dims(label, axis = -1)
         # print("Image shape:", image.shape)
         # print("Label shape:", label.shape)
