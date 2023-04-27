@@ -25,6 +25,8 @@ def dice_coefficient(pred, target):
 
 def dice_loss(pred, target):
 
+    pred = torch.sigmoid(pred)
+    
     return 1 - dice_coefficient(pred, target)
 
 def preprocessor(input_img, img_rows, img_cols):
