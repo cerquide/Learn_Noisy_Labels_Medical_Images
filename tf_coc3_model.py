@@ -110,7 +110,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             output, output_cms = model(X)
 
             # Calculate the Loss
-            loss = dice_loss(output, y_avrg)
+            # loss = dice_loss(output, y_avrg)
             loss, loss_ce, loss_trace = noisy_label_loss(output, output_cms, labels_all)
             
             loss.backward()
@@ -132,25 +132,36 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         # Validate
         model.eval()
         val_loss = 0.0
+        val_loss_ce = 0.0
+        val_loss_trace = 0.0
         val_dice = 0.0
-        # with torch.no_grad():
-        #     for X, y in val_loader:
+        with torch.no_grad():
+            for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
 
-        #         X, y = X.to('cuda'), y.to('cuda')
+                X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
-        #         # Calculate the Loss 
-        #         output = model(X)
-        #         # loss = criterion(output, y)
-        #         loss = dice_loss(output, y)
-        #         val_loss += loss.item()
+                labels_all = []
+                labels_all.append(y_AR)
+                labels_all.append(y_HS)
+                labels_all.append(y_SG)
 
-        #         # Calculate the Dice 
-        #         pred = torch.sigmoid(output) > 0.5
-        #         dice = dice_coefficient(pred.float(), y)
-        #         val_dice += dice.item()
+                # Calculate the Loss 
+                output, output_cms = model(X)
+                # loss = criterion(output, y)
+                loss, loss_ce, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+                val_loss += loss.item()
+                val_loss_ce += loss_ce.item()
+                val_loss_trace += loss_trace.item()
 
-        # val_loss /= len(val_loader)
-        # val_dice /= len(val_loader)
+                # Calculate the Dice 
+                pred = torch.sigmoid(output) > 0.5
+                dice = dice_coefficient(pred.float(), y_avrg)
+                val_dice += dice.item()
+
+            val_loss /= len(val_loader)
+            val_loss_ce /= len(train_loader)
+            val_loss_trace /= len(train_loader)
+            val_dice /= len(val_loader)
 
         # train_loss_values.append(train_loss)
         # val_loss_values.append(val_loss)
