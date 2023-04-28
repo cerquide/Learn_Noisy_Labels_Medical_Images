@@ -41,7 +41,7 @@ epochs = 100
 patience = 500
 
 TL = True
-weights_path = './tf_coc/coc_Final_dict.pt'
+#weights_path = './tf_coc/coc_Final_dict.pt'
 weights_path = './tf_skin/skin_Final_dict.pt'
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
@@ -173,7 +173,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     print(len(output_cms))
     save_path = './tf_coc3'
     if TL:
-        save_path = save_path + '/wtTL'
+        #save_path = save_path + '/wtTL'
         save_path = save_path + '/wtTLskin'
     else:
         save_path = save_path + '/noTL'
