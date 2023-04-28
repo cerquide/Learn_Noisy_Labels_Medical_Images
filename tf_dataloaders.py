@@ -164,11 +164,6 @@ def load_coc_3_train_data(imgs_path,
     input_mask_avrg = transforms.Resize(IMG_SIZE)(input_mask_avrg)
     input_mask_avrg = transforms.ToTensor()(input_mask_avrg)
 
-    # create a list of shuffled indices
-    if seed is not None:
-        np.random.seed(seed)
-    self.indices = np.random.permutation(len(self.image_paths))
-
     return input_image, input_mask_AR, input_mask_HS, input_mask_SG, input_mask_avrg
 
 class COC3TrainDataset(Dataset):
@@ -185,6 +180,11 @@ class COC3TrainDataset(Dataset):
         self.label_avrg_folder = str(dataset_location) + '/avrg'
         
         print("Gent data loaded from utils.py as .tif format ...")
+
+        # create a list of shuffled indices
+        if seed is not None:
+            np.random.seed(seed)
+        self.indices = np.random.permutation(len(self.image_paths))
 
     def __len__(self):
         
