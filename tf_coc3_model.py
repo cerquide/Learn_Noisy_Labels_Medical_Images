@@ -112,7 +112,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss
             loss = dice_loss(output, y_avrg)
             loss, loss_ce, loss_trace = noisy_label_loss(output, output_cms, labels_all)
-
+            break
             loss.backward()
             optimizer.step()
             train_loss += loss.item()

@@ -72,12 +72,11 @@ class gcm_layers(nn.Module):
         self.input_height = input_height
         self.input_width = input_width
         self.global_weights = nn.Parameter(torch.eye(2))
-        self.relu = nn.Softplus()
 
     def forward(self, x):
 
         all_weights = self.global_weights.unsqueeze(0).repeat(x.size(0), 1, 1)
-        all_weights = all_weights.unsqueeze(3).unsqueeze(4).repeat(1, 1, 1, self.input_height, self.input_width)
+        all_weights = all_weights.unsqueeze(3).unsqueeze(4).repeat(1, 1, 1, self.input_width, self.input_height)
         
         y = nn.functional.softmax(all_weights, dim = 1)
 
