@@ -78,7 +78,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
-    scheduler = StepLR(optimizer, step_size = 40, gamma = 0.1)
+    scheduler = StepLR(optimizer, step_size = 30, gamma = 0.1)
 
     # Setup TensorBoard logging
     # writer = SummaryWriter(log_dir=log_path)
