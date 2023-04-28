@@ -121,7 +121,7 @@ class GCM_UNet(nn.Module):
         for i in range(3):
             self.cms_output.append(gcm_layers(img_width, img_height))
 
-        self.output = nn.Conv2d(16, 1, kernel_size = 1)
+        self.output = nn.Conv2d(16, 1, kernel_size = 1, bias = True)
 
     def forward(self, x):
 
@@ -175,7 +175,7 @@ class lcm_layers(nn.Module):
 
         self.conv_1 = conv_block(in_channels = in_channels, out_channels = in_channels)
         self.conv_2 = conv_block(in_channels = in_channels, out_channels = in_channels)
-        self.conv_last = nn.Conv2d(in_channels, 1, bias = True)
+        self.conv_last = nn.Conv2d(in_channels, 1, kernel_size = 1, bias = True)
         self.relu = nn.Softplus()
         # self.relu = nn.functional.softmax(all_weights, dim = 1)
 
