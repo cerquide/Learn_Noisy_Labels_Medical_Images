@@ -22,7 +22,7 @@ def dice_loss(pred, target):
 
 ### GCM ###
 
-def noisy_label_loss(pred, cms, labels, alpha = 0.1):
+def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
 
     main_loss = 0.0
     regularisation = 0.0
@@ -53,6 +53,49 @@ def noisy_label_loss(pred, cms, labels, alpha = 0.1):
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         pred_noisy = pred_noisy_mask.unsqueeze(1)
+
+        loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
+        main_loss += loss_current
+        regularisation += torch.trace(torch.transpose(torch.sum(cm, dim = 0), 0, 1)).sum() / (b * h * w)
+
+    regularisation = alpha * regularisation
+    loss = main_loss + regularisation
+
+    return loss, main_loss, regularisation
+
+### lCM ###
+
+def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
+
+    main_loss = 0.0
+    regularisation = 0.0
+
+    pred_norm = torch.sigmoid(pred)
+
+    # mask_prob = pred_norm
+    # back_prob = 1 - pred_norm
+
+    # pred_norm = torch.cat([mask_prob, back_prob], dim = 1)
+    b, c, h, w = pred_norm.size()
+   
+    pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
+
+    for cm, label_noisy in zip(cms, labels):
+        
+        cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
+
+        # normalisation along the rows:
+        cm = cm / cm.sum(1, keepdim = True)
+
+        # matrix multiplication to calculate the predicted noisy segmentation:
+        # cm: b*h*w x c x c
+        # pred_noisy: b*h*w x c x 1
+        
+        pred_noisy = torch.bmm(cm, pred_norm) #.view(b*h*w, c)
+        
+        pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
+        # pred_noisy_mask = pred_noisy[:, 0, :, :]
+        # pred_noisy = pred_noisy_mask.unsqueeze(1)
 
         loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
         main_loss += loss_current

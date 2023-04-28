@@ -17,7 +17,7 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
-from tf_utils import noisy_label_loss
+from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM
 from tf_utils import plot_performance
 ### ======================== ###
 
@@ -70,9 +70,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     # Initialize the model, loss function and optimizer
     if GCM:
         model = initialize_model_GCM(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to(DEVICE)
+        noisy_label_loss = noisy_label_loss_GCM
     else:
         model = initialize_model_lCM(IMG_CHANNELS).to(DEVICE)
-
+        noisy_label_loss = noisy_label_loss_lCM
     if TL:
         pretrained_weights = torch.load(weights_path)
         model.load_state_dict(pretrained_weights, strict = False)
