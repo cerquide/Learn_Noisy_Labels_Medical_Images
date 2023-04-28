@@ -222,7 +222,7 @@ class lCM_UNet(nn.Module):
 
         self.cms_output = nn.ModuleList()
         for i in range(3):
-            self.cms_output.append(lcm_layers(img_channels))
+            self.cms_output.append(lcm_layers(16))
 
         self.output = nn.Conv2d(16, 1, kernel_size = 1)
 
