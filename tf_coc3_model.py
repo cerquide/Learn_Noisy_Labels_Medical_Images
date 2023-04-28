@@ -119,7 +119,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             optimizer.zero_grad()
             output, output_cms = model(X)
-            return 0
+
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
@@ -183,7 +183,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
         scheduler.step()
 
-    save_path = './tf_coc3'
+    if GCM:
+        save_path = './tf_coc3'
+    else:
+        save_path = './tf_coc3_lcm'
     if TL:
         #save_path = save_path + '/wtTL'
         save_path = save_path + '/wtTLskin'

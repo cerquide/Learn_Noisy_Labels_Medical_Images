@@ -231,13 +231,9 @@ class lCM_UNet(nn.Module):
         self.output_cms = []
 
         enc1 = self.enc1(x)
-        print("enc1: ", enc1.size())
         enc2 = self.enc2(F.max_pool2d(enc1, 2))
-        print("enc2: ", enc2.size())
         enc3 = self.enc3(F.max_pool2d(enc2, 2))
-        print("enc3: ", enc3.size())
         enc4 = self.enc4(F.max_pool2d(enc3, 2))
-        print("enc4: ", enc4.size())
 
         middle = self.middle(F.max_pool2d(enc4, 2))
 
@@ -249,7 +245,6 @@ class lCM_UNet(nn.Module):
         dec2 = self.dec2(torch.cat([up2, enc2], 1))
         up1 = self.upconv1(dec2)
         dec1 = self.dec1(torch.cat([up1, enc1], 1))
-        print("dec1: ", dec1.size())
 
         for i in range(3):
             
