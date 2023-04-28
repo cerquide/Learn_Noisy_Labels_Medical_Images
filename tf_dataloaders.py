@@ -167,7 +167,7 @@ def load_coc_3_train_data(imgs_path,
     return input_image, input_mask_AR, input_mask_HS, input_mask_SG, input_mask_avrg
 
 class COC3TrainDataset(Dataset):
-    def __init__(self, dataset_location, img_width, img_height, transform = None, seed = 42):
+    def __init__(self, dataset_location, img_width, img_height, transform = None, seed = 420):
 
         self.transform = transform
 
