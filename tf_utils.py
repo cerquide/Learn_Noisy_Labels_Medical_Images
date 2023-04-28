@@ -50,8 +50,13 @@ def noisy_label_loss(pred, cms, labels, alpha = 0.1):
         
         pred_noisy = torch.bmm(cm, pred_norm) #.view(b*h*w, c)
         print("pred_noisy size: ", pred_noisy.size())
-        break
+        
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
+        pred_noisy_mask = pred_noisy[:, 0, :, :].unsqueeze(1)
+
+        print("a: ", pred_noisy[0, 0, 0, 0])
+        print("b: ", pred_noisy_mask[0, 0, 0, 0])
+        break
 
         loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
         main_loss += loss_current
