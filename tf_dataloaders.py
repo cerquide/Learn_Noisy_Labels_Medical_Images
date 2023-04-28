@@ -209,13 +209,13 @@ class COC3TrainDataset(Dataset):
             all_images = glob.glob(os.path.join(self.image_folder, '*.tif'))
             all_images.sort()
 
-            idx = self.indices[idx]
+            rand_idx = self.indices[idx]
 
-            image_path = all_images[idx]
-            mask_AR_path = all_labels_AR[idx]
-            mask_HS_path = all_labels_HS[idx]
-            mask_SG_path = all_labels_SG[idx]
-            mask_avrg_path = all_labels_avrg[idx]
+            image_path = all_images[rand_idx]
+            mask_AR_path = all_labels_AR[rand_idx]
+            mask_HS_path = all_labels_HS[rand_idx]
+            mask_SG_path = all_labels_SG[rand_idx]
+            mask_avrg_path = all_labels_avrg[rand_idx]
             
             image, label_AR, label_HS, label_SG, label_avrg = load_coc_3_train_data(image_path, 
                                                                                     mask_AR_path,
