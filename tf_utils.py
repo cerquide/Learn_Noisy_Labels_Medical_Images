@@ -61,10 +61,6 @@ def noisy_label_loss(pred, cms, labels, alpha = 0.1):
     regularisation = alpha * regularisation
     loss = main_loss + regularisation
 
-    print("loss: ", loss)
-    print("main_loss: ", main_loss)
-    print("regularisation_loss: ", regularisation)
-
     return loss, main_loss, regularisation
 
 
