@@ -184,7 +184,7 @@ class COC3TrainDataset(Dataset):
         # create a list of shuffled indices
         if seed is not None:
             np.random.seed(seed)
-        self.indices = np.random.permutation(len(self.image_paths))
+        self.indices = np.random.permutation(len(glob.glob(os.path.join(self.image_folder, '*.tif'))))
 
     def __len__(self):
         
