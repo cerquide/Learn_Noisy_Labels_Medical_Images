@@ -26,7 +26,8 @@ from tf_dataloaders import COC3TrainDataset
 ### ======================== ###
 
 ### ======= Models.py ======= ###
-from tf_models import initialize_model3
+from tf_models import initialize_model_GCM
+from tf_models import initialize_model_lCM
 ### ======================== ###
 
 images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw")
@@ -39,10 +40,11 @@ DEVICE = 'cuda'
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
-epochs = 100
+epochs = 10
 patience = 500
 
-TL = True
+GCM = False  # for using Global CM, else local CM.
+TL = False   # for using transfer learning
 #weights_path = './tf_coc/coc_Final_dict.pt'
 weights_path = './tf_skin/skin_Final_dict.pt'
 
@@ -66,7 +68,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
 
     # Initialize the model, loss function and optimizer
-    model = initialize_model3(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to(DEVICE)
+    if GCM:
+        model = initialize_model_GCM(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to(DEVICE)
+    else:
+        model = initialize_model_lCM(IMG_CHANNELS).to(DEVICE)
 
     if TL:
         pretrained_weights = torch.load(weights_path)
@@ -93,6 +98,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     val_loss_values = []
 
     print("Training...")
+    return 0
     for epoch in range(epochs):
         # Train
         model.train()
