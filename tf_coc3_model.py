@@ -39,10 +39,10 @@ DEVICE = 'cuda'
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
-epochs = 100
+epochs = 20
 patience = 500
 
-TL = True
+TL = False
 #weights_path = './tf_coc/coc_Final_dict.pt'
 weights_path = './tf_skin/skin_Final_dict.pt'
 
@@ -176,7 +176,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss CE: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
 
         scheduler.step()
-        
+
     save_path = './tf_coc3'
     if TL:
         #save_path = save_path + '/wtTL'

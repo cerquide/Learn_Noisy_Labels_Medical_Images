@@ -167,7 +167,7 @@ def load_coc_3_train_data(imgs_path,
     return input_image, input_mask_AR, input_mask_HS, input_mask_SG, input_mask_avrg
 
 class COC3TrainDataset(Dataset):
-    def __init__(self, dataset_location, img_width, img_height, transform = None, seed = 243):
+    def __init__(self, dataset_location, img_width, img_height, transform = None, seed = 42):
 
         self.transform = transform
 
@@ -210,6 +210,7 @@ class COC3TrainDataset(Dataset):
             all_images.sort()
 
             rand_idx = self.indices[idx]
+            print(rand_idx)
 
             image_path = all_images[rand_idx]
             mask_AR_path = all_labels_AR[rand_idx]
