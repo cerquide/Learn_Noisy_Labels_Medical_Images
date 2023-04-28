@@ -163,12 +163,19 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             val_loss_trace /= len(train_loader)
             val_dice /= len(val_loader)
 
-        # train_loss_values.append(train_loss)
-        # val_loss_values.append(val_loss)
-        # train_dice_values.append(train_dice)
-        # val_dice_values.append(val_dice)
+        train_loss_values.append(train_loss)
+        val_loss_values.append(val_loss)
+        train_dice_values.append(train_dice)
+        val_dice_values.append(val_dice)
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss CE: {train_loss_ce:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
     print(len(output_cms))
+    save_path = './tf_coc3'
+    if TL:
+        save_path = save_path + '/wtTL'
+    else:
+        save_path = save_path + '/noTL'
+    plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
+    print("Figures were saved.")
 
 train_model(images_path, masks_path, path_to_save, log_path)
