@@ -174,7 +174,6 @@ class lcm_layers(nn.Module):
         self.class_no = 2
 
         self.conv_1 = conv_block(in_channels = in_channels, out_channels = in_channels)
-        print("conv1: ", self.conv_1.size())
         self.conv_2 = conv_block(in_channels = in_channels, out_channels = in_channels)
         self.conv_last = nn.Conv2d(in_channels, 1, kernel_size = 1, bias = True)
         self.relu = nn.Softplus()
