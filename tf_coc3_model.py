@@ -9,6 +9,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
+
+from torch.optim.lr_scheduler import StepLR
 # from torch.utils.tensorboard import SummaryWriter
 
 from pathlib import Path
@@ -76,6 +78,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
+    scheduler = StepLR(optimizer, step_size = 30, gamma = 0.1)
+
     # Setup TensorBoard logging
     # writer = SummaryWriter(log_dir=log_path)
 
@@ -94,7 +98,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         model.train()
 
         train_loss = 0.0
-        train_loss_ce = 0.0
+        train_loss_dice = 0.0
         train_loss_trace = 0.0
         train_dice = 0.0
 
@@ -112,12 +116,12 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
-            loss, loss_ce, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
             
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
-            train_loss_ce += loss_ce.item()
+            train_loss_dice += loss_dice.item()
             train_loss_trace += loss_trace.item()
 
             # Calculate the Dice
@@ -126,14 +130,14 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             train_dice += train_dice_.item()
 
         train_loss /= len(train_loader)
-        train_loss_ce /= len(train_loader)
+        train_loss_dice /= len(train_loader)
         train_loss_trace /= len(train_loader)
         train_dice /= len(train_loader)
 
         # Validate
         model.eval()
         val_loss = 0.0
-        val_loss_ce = 0.0
+        val_loss_dice = 0.0
         val_loss_trace = 0.0
         val_dice = 0.0
         with torch.no_grad():
@@ -149,9 +153,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
-                loss, loss_ce, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+                loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
                 val_loss += loss.item()
-                val_loss_ce += loss_ce.item()
+                val_loss_dice += loss_dice.item()
                 val_loss_trace += loss_trace.item()
 
                 # Calculate the Dice 
@@ -160,7 +164,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 val_dice += dice.item()
 
             val_loss /= len(val_loader)
-            val_loss_ce /= len(train_loader)
+            val_loss_dice /= len(train_loader)
             val_loss_trace /= len(train_loader)
             val_dice /= len(val_loader)
 
@@ -169,8 +173,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_dice_values.append(train_dice)
         val_dice_values.append(val_dice)
 
-        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss CE: {train_loss_ce:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
-    print(len(output_cms))
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss CE: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
+
+        scheduler.step()
+        
     save_path = './tf_coc3'
     if TL:
         #save_path = save_path + '/wtTL'
