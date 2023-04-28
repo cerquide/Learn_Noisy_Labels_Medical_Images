@@ -42,6 +42,7 @@ patience = 500
 
 TL = True
 weights_path = './tf_coc/coc_Final_dict.pt'
+weights_path = './tf_skin/skin_Final_dict.pt'
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
     path_to_save.mkdir(exist_ok = True)
@@ -173,6 +174,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     save_path = './tf_coc3'
     if TL:
         save_path = save_path + '/wtTL'
+        save_path = save_path + '/wtTLskin'
     else:
         save_path = save_path + '/noTL'
     plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
