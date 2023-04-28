@@ -42,7 +42,7 @@ val_split = 0.05
 epochs = 100
 patience = 500
 
-TL = False
+TL = True
 #weights_path = './tf_coc/coc_Final_dict.pt'
 weights_path = './tf_skin/skin_Final_dict.pt'
 
@@ -173,7 +173,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_dice_values.append(train_dice)
         val_dice_values.append(val_dice)
 
-        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss CE: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
 
         scheduler.step()
 
