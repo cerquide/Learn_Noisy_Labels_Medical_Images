@@ -120,7 +120,7 @@ def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
     test_dice = 0.0
 
     with torch.no_grad():
-        for i, X, y_AR, y_HS, y_SG, y_avrg in enumerate(test_loader):
+        for i, (X, y_AR, y_HS, y_SG, y_avrg) in enumerate(test_loader):
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(device), y_AR.to(device), y_HS.to(device), y_SG.to(device), y_avrg.to(device)
 
