@@ -107,6 +107,47 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
     return loss, main_loss, regularisation
 
 
+### Testing ###
+def test_lGM(model, test_loader, noisy_label_loss, device = 'cuda'):
+
+    model.eval()
+
+    test_loss = 0.0
+    test_loss_dice = 0.0
+    test_loss_trace = 0.0
+    test_dice = 0.0
+
+    with torch.no_grad():
+        for X, y_AR, y_HS, y_SG, y_avrg in test_loader:
+
+            X, y_AR, y_HS, y_SG, y_avrg = X.to(device), y_AR.to(device), y_HS.to(device), y_SG.to(device), y_avrg.to(device)
+
+            labels_all = []
+            labels_all.append(y_AR)
+            labels_all.append(y_HS)
+            labels_all.append(y_SG)
+
+            output, output_cms = model(X)
+
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+
+            test_loss += loss.item()
+            test_loss_dice += loss_dice.item()
+            test_loss_trace += loss_trace.item()
+
+            # Calculate the Dice 
+            pred = torch.sigmoid(output) > 0.5
+            dice = dice_coefficient(pred.float(), y_avrg)
+            test_dice += dice.item()
+
+        test_loss /= len(test_loader)
+        test_loss_dice /= len(test_loader)
+        test_loss_trace /= len(test_loader)
+        test_dice /= len(test_loader)
+
+    print(f'Test data size: {len(test_loader)}, Test Loss: {test_loss:.4f}, Test Loss Dice: {test_loss_dice:.4f}, Test Dice: {test_dice:.4f}')
+
+
 ### Plotting ###
 def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path):
     epochs = range(1, len(train_losses) + 1)

@@ -19,6 +19,7 @@ from pathlib import Path
 from tf_utils import dice_coefficient, dice_loss
 from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM
 from tf_utils import plot_performance
+from tf_utils import test_lGM
 ### ======================== ###
 
 ### ======= Data_Loader.py ======= ###
@@ -40,6 +41,7 @@ DEVICE = 'cuda'
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
+test_split = 0.05
 epochs = 200
 patience = 500
 
@@ -57,15 +59,18 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     dataset = COC3TrainDataset(images_path, IMG_WIDTH, IMG_HEIGHT)
     print("Dataset was loaded...")
 
-    train_len = int(len(dataset) * (1 - val_split))
-    val_len = len(dataset) - train_len
-    train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
+    train_len = int(len(dataset) * (1 - val_split - test_split))
+    val_len = int(len(dataset) * val_split)
+    test_len = len(dataset) - train_len - val_len
+    train_dataset, val_dataset, test_dataset = random_split(dataset, [train_len, val_len, test_len])
 
     print("Train length: ", train_len)
     print("Val length: ", val_len)
+    print("Test length: ", test_len)
 
     train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize the model, loss function and optimizer
     if GCM:
@@ -74,6 +79,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     else:
         model = initialize_model_lCM(IMG_CHANNELS).to(DEVICE)
         noisy_label_loss = noisy_label_loss_lCM
+        test = test_lGM
     if TL:
         pretrained_weights = torch.load(weights_path)
         model.load_state_dict(pretrained_weights, strict = False)
@@ -171,8 +177,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 val_dice += dice.item()
 
             val_loss /= len(val_loader)
-            val_loss_dice /= len(train_loader)
-            val_loss_trace /= len(train_loader)
+            val_loss_dice /= len(val_loader)
+            val_loss_trace /= len(val_loader)
             val_dice /= len(val_loader)
 
         train_loss_values.append(train_loss)
@@ -184,10 +190,34 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
         scheduler.step()
 
+    with torch.no_grad():
+        for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
+
+            X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
+
+            labels_all = []
+            labels_all.append(y_AR)
+            labels_all.append(y_HS)
+            labels_all.append(y_SG)
+
+            # Calculate the Loss 
+            output, output_cms = model(X)
+            # loss = criterion(output, y)
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+            val_loss += loss.item()
+            val_loss_dice += loss_dice.item()
+            val_loss_trace += loss_trace.item()
+
+            # Calculate the Dice 
+            pred = torch.sigmoid(output) > 0.5
+            dice = dice_coefficient(pred.float(), y_avrg)
+            val_dice += dice.item()
+
     if GCM:
         save_path = './tf_coc3'
     else:
         save_path = './tf_coc3_lcm'
+        test(model, test_loader, noisy_label_loss, DEVICE)
     if TL:
         #save_path = save_path + '/wtTL'
         save_path = save_path + '/wtTLskin'
