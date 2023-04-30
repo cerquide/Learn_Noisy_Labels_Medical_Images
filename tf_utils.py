@@ -1,8 +1,10 @@
 import numpy as np
+import os
 
 import matplotlib.pyplot as plt
 
 import torch
+import torchvision.utils as vutils
 
 def dice_coefficient(pred, target):
 
@@ -108,7 +110,7 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
 
 
 ### Testing ###
-def test_lGM(model, test_loader, noisy_label_loss, device = 'cuda'):
+def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
 
     model.eval()
 
@@ -118,7 +120,7 @@ def test_lGM(model, test_loader, noisy_label_loss, device = 'cuda'):
     test_dice = 0.0
 
     with torch.no_grad():
-        for X, y_AR, y_HS, y_SG, y_avrg in test_loader:
+        for i, X, y_AR, y_HS, y_SG, y_avrg in enumerate(test_loader):
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(device), y_AR.to(device), y_HS.to(device), y_SG.to(device), y_avrg.to(device)
 
@@ -128,6 +130,13 @@ def test_lGM(model, test_loader, noisy_label_loss, device = 'cuda'):
             labels_all.append(y_SG)
 
             output, output_cms = model(X)
+
+            for j in range(len(output)):
+
+                image_path = os.path.join(save_path, "batch{}_image{}.png".format(i, j))
+                mask_path = os.path.join(save_path, "batch{}_mask{}.png".format(i, j))
+                vutils.save_image(X[j], image_path)
+                vutils.save_image(output[j], mask_path)
 
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
 
@@ -146,7 +155,6 @@ def test_lGM(model, test_loader, noisy_label_loss, device = 'cuda'):
         test_dice /= len(test_loader)
 
     print(f'Test data size: {len(test_loader)}, Test Loss: {test_loss:.4f}, Test Loss Dice: {test_loss_dice:.4f}, Test Dice: {test_dice:.4f}')
-
 
 ### Plotting ###
 def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path):

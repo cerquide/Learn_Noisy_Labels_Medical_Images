@@ -46,7 +46,7 @@ epochs = 30
 patience = 500
 
 GCM = False  # for using Global CM, else local CM.
-TL = False   # for using transfer learning
+TL = True   # for using transfer learning
 #weights_path = './tf_coc/coc_Final_dict.pt'
 weights_path = './tf_skin/skin_Final_dict.pt'
 
@@ -215,14 +215,20 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     if GCM:
         save_path = './tf_coc3'
+        if TL:
+            #save_path = save_path + '/wtTL'
+            save_path = save_path + '/wtTLskin'
+        else:
+            save_path = save_path + '/noTL'
     else:
         save_path = './tf_coc3_lcm'
-        test(model, test_loader, noisy_label_loss, DEVICE)
-    if TL:
-        #save_path = save_path + '/wtTL'
-        save_path = save_path + '/wtTLskin'
-    else:
-        save_path = save_path + '/noTL'
+        if TL:
+            #save_path = save_path + '/wtTL'
+            save_path = save_path + '/wtTLskin'
+        else:
+            save_path = save_path + '/noTL'
+        test(model, test_loader, noisy_label_loss, save_path, DEVICE)
+
     plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
     print("Figures were saved.")
 
