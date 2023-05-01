@@ -70,7 +70,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle = False)
 
     # Initialize the model, loss function and optimizer
     if GCM:
@@ -82,14 +82,32 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         test = test_lGM
     if TL:
         pretrained_weights = torch.load(weights_path)
-        # print names of layers #
+        
+        ### print names of layers ###
         model_dict = model.state_dict()
-        for name, param in model.named_children():
-            print(name)
-        print(model)
+        # for name, param in model.named_children():
+        #     print(name)
+        layers = ['enc1', 'enc2', 'enc3', 'enc4',
+                  'middle',
+                  'dec4', 'dec3', 'dec2', 'dec1',
+                  'upconv4', 'upconv3', 'upconv2', 'upconv1',
+                  'cms_output',
+                  'output']
+        for name, param in model.named_parameters():
+            if 'cms_output' in name:
+                param.requires_grad = True
+            else:
+                param.requires_grad = False
+        ### ===================== ###
+
         model.load_state_dict(pretrained_weights, strict = False)
         model.eval()
         print("Weights have been loaded succesfully...")
+    
+    total_params = sum(p.numel() for p in model.parameters())
+    print("Total number of params: ", total_params)
+    total_params_grad  = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print("Total number of params with grad: ", total_params_grad)
 
     print("Model initialized...")
     criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
