@@ -86,7 +86,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         model_dict = model.state_dict()
         for name, param in model.named_parameters():
             print(name)
-        print(model.summary())
+        print(model)
         model.load_state_dict(pretrained_weights, strict = False)
         model.eval()
         print("Weights have been loaded succesfully...")
