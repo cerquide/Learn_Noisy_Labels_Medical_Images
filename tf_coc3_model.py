@@ -42,7 +42,7 @@ learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
 test_split = 0.05
-epochs = 100
+epochs = 1
 patience = 500
 
 GCM = False  # for using Global CM, else local CM.
@@ -82,6 +82,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         test = test_lGM
     if TL:
         pretrained_weights = torch.load(weights_path)
+        # print names of layers #
+        model_dict = model.state_dict()
+        for name, param in model.named_parameters():
+            print(name)
         model.load_state_dict(pretrained_weights, strict = False)
         model.eval()
         print("Weights have been loaded succesfully...")
@@ -189,6 +193,17 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
 
         scheduler.step()
+
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            patience_counter = 0
+            torch.save(model.state_dict(), path_to_save / 'coc3_base_weights.pt')
+        else:
+            patience_counter += 1
+
+            if patience_counter >= patience:
+                print("Early stopping")
+                break
 
     with torch.no_grad():
         for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
