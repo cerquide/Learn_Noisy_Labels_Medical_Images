@@ -84,7 +84,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         pretrained_weights = torch.load(weights_path)
         # print names of layers #
         model_dict = model.state_dict()
-        for name, param in model.named_parameters():
+        for name, param in model.named_children():
             print(name)
         print(model)
         model.load_state_dict(pretrained_weights, strict = False)
