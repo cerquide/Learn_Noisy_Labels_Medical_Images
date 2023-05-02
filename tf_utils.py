@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import torch
 import torchvision.utils as vutils
 
+from sklearn.metrics import confusion_matrix
+
 def dice_coefficient(pred, target):
 
     smooth = 1e-6
@@ -108,6 +110,54 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
 
     return loss, main_loss, regularisation
 
+def calculate_cm(pred, true):
+
+    pred = pred.view(-1)
+    true = true.view(-1)
+
+    pred = pred.cpu().detach().numpy()
+    true = true.cpu().detach().numpy()
+
+    confusion_matrices = confusion_matrix(y_true = true, y_pred = pred, normalize = 'all')
+    
+    return confusion_matrices
+
+def evaluate_cm(pred, pred_cm, true_cm):
+
+    b, c, w, h = pred.size()
+    nnn = 1
+    
+    pred = pred.reshape(b, c, h * w)
+    pred = pred.permute(0, 2, 1).contiguous()
+    pred = pred.view(b * h * w, c).view(b * h * w, c, 1)
+    
+    # mean squared error
+    mse = 0
+    outputs = []
+
+    for j, cm in enumerate(pred_cm):
+        
+        cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
+        cm = cm / cm.sum(1, keepdim = True)
+
+        if j < len(true_cm):
+
+            cm_pred_ = cm.sum(0) / (b * h * w)
+            cm_pred_ = cm_pred_.cpu().detach().numpy()
+            cm_true_ = true_cm[j]
+            
+            cm_mse_each_label = cm_pred_ - cm_true_
+            cm_mse_each_label = cm_mse_each_label ** 2
+
+            mse += cm_mse_each_label.mean()
+
+        output = torch.bmm(cm, pred).view(b * h * w, c)
+        output = output.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
+        
+        output = output > 0.5
+        outputs.append(output)
+
+    return outputs
 
 ### Testing ###
 def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):

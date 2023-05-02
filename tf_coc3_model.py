@@ -20,6 +20,7 @@ from tf_utils import dice_coefficient, dice_loss
 from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM
 from tf_utils import plot_performance
 from tf_utils import test_lGM
+from tf_utils import calculate_cm, evaluate_cm
 ### ======================== ###
 
 ### ======= Data_Loader.py ======= ###
@@ -42,7 +43,7 @@ learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
 test_split = 0.05
-epochs = 100
+epochs = 10
 patience = 500
 
 GCM = False  # for using Global CM, else local CM.
@@ -186,6 +187,16 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 labels_all.append(y_HS)
                 labels_all.append(y_SG)
 
+                if GCM == False:
+                    cm_all_true = []
+                    cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
+                    cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
+                    cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
+                    
+                    cm_all_true.append(cm_AR_true)
+                    cm_all_true.append(cm_HS_true)
+                    cm_all_true.append(cm_SG_true)
+
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
@@ -194,6 +205,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 val_loss_dice += loss_dice.item()
                 val_loss_trace += loss_trace.item()
 
+                # insert evaluate_cms(pred = torch.sigmoid(output), ...)
+                mse_outputs = evaluate_cm(pred = torch.sigmoid(output), pred_cm = output_cms, true_cm = cm_all_true)
+                return 0
                 # Calculate the Dice 
                 pred = torch.sigmoid(output) > 0.5
                 dice = dice_coefficient(pred.float(), y_avrg)
