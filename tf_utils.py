@@ -124,12 +124,11 @@ def calculate_cm(pred, true):
 
 def evaluate_cm(pred, pred_cm, true_cm):
 
-
-    print("pred: ", pred.size())
-    print("pred_cm len: ", len(pred_cm))
-    print("pred_cm: ", pred_cm[0].size())
-    print("true_cm len: ", len(true_cm))
-    print("true_cm: ", torch.from_numpy(true_cm[0]).size())
+    # print("pred: ", pred.size())
+    # print("pred_cm len: ", len(pred_cm))
+    # print("pred_cm: ", pred_cm[0].size())
+    # print("true_cm len: ", len(true_cm))
+    # print("true_cm: ", torch.from_numpy(true_cm[0]).size())
 
     b, c, w, h = pred.size()
     nnn = 1
@@ -137,10 +136,11 @@ def evaluate_cm(pred, pred_cm, true_cm):
     pred = pred.reshape(b, c, h * w)
     pred = pred.permute(0, 2, 1).contiguous()
     pred = pred.view(b * h * w, c).view(b * h * w, c, 1)
-    print("pred: ", pred.size())
+    # print("pred: ", pred.size())
     # mean squared error
     mse = 0
     outputs = []
+    mses = []
 
     for j, cm in enumerate(pred_cm):
         
@@ -157,15 +157,17 @@ def evaluate_cm(pred, pred_cm, true_cm):
             cm_mse_each_label = cm_mse_each_label ** 2
 
             mse += cm_mse_each_label.mean()
-        print("MSE = ", mse)
+        
+        mses.append(mse)
+
         output = torch.bmm(cm, pred).view(b * h * w, c)
         output = output.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         
         output = output > 0.5
-        print("Output shape: ", output.size)
+        print("output shape: ", output.shape)
         outputs.append(output)
 
-    return outputs
+    return outputs, mses
 
 ### Testing ###
 def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
