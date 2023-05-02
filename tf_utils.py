@@ -129,7 +129,7 @@ def evaluate_cm(pred, pred_cm, true_cm):
     print("pred_cm len: ", len(pred_cm))
     print("pred_cm: ", pred_cm[0].size())
     print("true_cm len: ", len(true_cm))
-    print("true_cm: ", true_cm[0].size())
+    print("true_cm: ", torch.from_numpy(true_cm[0]).size())
 
     b, c, w, h = pred.size()
     nnn = 1
