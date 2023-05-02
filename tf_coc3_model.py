@@ -47,7 +47,7 @@ epochs = 10
 patience = 500
 
 GCM = False  # for using Global CM, else local CM.
-TL = True   # for using transfer learning
+TL = False   # for using transfer learning
 weights_path = './tf_coc/coc_Final_dict.pt'
 # weights_path = './tf_skin/skin_Final_dict.pt'
 
