@@ -136,7 +136,7 @@ def evaluate_cm(pred, pred_cm, true_cm):
     pred = pred.reshape(b, c, h * w)
     pred = pred.permute(0, 2, 1).contiguous()
     pred = pred.view(b * h * w, c).view(b * h * w, c, 1)
-    # print("pred: ", pred.size())
+    print("pred: ", pred.size())
     # mean squared error
     mse = 0
     outputs = []
