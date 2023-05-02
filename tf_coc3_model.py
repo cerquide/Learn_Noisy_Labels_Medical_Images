@@ -98,7 +98,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             if 'cms_output' in name:
                 param.requires_grad = True
             else:
-                param.requires_grad = False
+                param.requires_grad = True
         ### ===================== ###
 
         model.load_state_dict(pretrained_weights, strict = False)
