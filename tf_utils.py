@@ -137,7 +137,7 @@ def evaluate_cm(pred, pred_cm, true_cm):
     pred = pred.reshape(b, c, h * w)
     pred = pred.permute(0, 2, 1).contiguous()
     pred = pred.view(b * h * w, c).view(b * h * w, c, 1)
-    
+    print("pred: ", pred.size())
     # mean squared error
     mse = 0
     outputs = []
@@ -157,11 +157,12 @@ def evaluate_cm(pred, pred_cm, true_cm):
             cm_mse_each_label = cm_mse_each_label ** 2
 
             mse += cm_mse_each_label.mean()
-
+        print("MSE = ", mse)
         output = torch.bmm(cm, pred).view(b * h * w, c)
         output = output.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         
         output = output > 0.5
+        print("Output shape: ", output.size)
         outputs.append(output)
 
     return outputs

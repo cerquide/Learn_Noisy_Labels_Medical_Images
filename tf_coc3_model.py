@@ -192,6 +192,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                     cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
                     cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
                     cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
+                    print("Confusion Matrix AR: ", cm_AR_true)
+                    print("Confusion Matrix HS: ", cm_HS_true)
+                    print("Confusion Matrix SG: ", cm_SG_true)
                     
                     cm_all_true.append(cm_AR_true)
                     cm_all_true.append(cm_HS_true)
