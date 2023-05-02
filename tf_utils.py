@@ -111,6 +111,9 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
     return loss, main_loss, regularisation
 
 def calculate_cm(pred, true):
+   
+    print("pred: ", pred.size())
+    print("true: ", true.size())
 
     pred = pred.view(-1)
     true = true.view(-1)
