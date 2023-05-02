@@ -151,13 +151,15 @@ def evaluate_cm(pred, pred_cm, true_cm):
 
             cm_pred_ = cm.sum(0) / (b * h * w)
             cm_pred_ = cm_pred_.cpu().detach().numpy()
+            print(cm_pred_)
             cm_true_ = true_cm[j]
+            print(cm_true_)
             
             diff = cm_pred_ - cm_true_
             diff_squared = diff ** 2
 
             mse += diff_squared.mean()
-            print(mse)
+            # print(mse)
         
         mses.append(mse)
 
