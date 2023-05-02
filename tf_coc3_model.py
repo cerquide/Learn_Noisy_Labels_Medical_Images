@@ -43,7 +43,7 @@ learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
 test_split = 0.05
-epochs = 10
+epochs = 1
 patience = 500
 
 GCM = False  # for using Global CM, else local CM.

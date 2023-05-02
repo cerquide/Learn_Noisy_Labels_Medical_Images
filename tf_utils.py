@@ -153,10 +153,11 @@ def evaluate_cm(pred, pred_cm, true_cm):
             cm_pred_ = cm_pred_.cpu().detach().numpy()
             cm_true_ = true_cm[j]
             
-            cm_mse_each_label = cm_pred_ - cm_true_
-            cm_mse_each_label = cm_mse_each_label ** 2
+            diff = cm_pred_ - cm_true_
+            diff_squared = diff ** 2
 
-            mse += cm_mse_each_label.mean()
+            mse += diff_squared.mean()
+            print(mse)
         
         mses.append(mse)
 
