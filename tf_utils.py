@@ -112,9 +112,6 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
 
 def calculate_cm(pred, true):
    
-    print("pred: ", pred.size())
-    print("true: ", true.size())
-
     pred = pred.view(-1)
     true = true.view(-1)
 
@@ -126,6 +123,11 @@ def calculate_cm(pred, true):
     return confusion_matrices
 
 def evaluate_cm(pred, pred_cm, true_cm):
+
+
+    print("pred: ", pred.size())
+    print("pred_cm: ", pred_cm.size())
+    print("true_cm: ", true_cm.size())
 
     b, c, w, h = pred.size()
     nnn = 1
