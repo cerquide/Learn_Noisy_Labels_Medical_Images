@@ -192,9 +192,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                     cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
                     cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
                     cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
-                    print("Confusion Matrix AR: ", cm_AR_true)
-                    print("Confusion Matrix HS: ", cm_HS_true)
-                    print("Confusion Matrix SG: ", cm_SG_true)
+                    # print("Confusion Matrix AR: ", cm_AR_true)
+                    # print("Confusion Matrix HS: ", cm_HS_true)
+                    # print("Confusion Matrix SG: ", cm_SG_true)
                     
                     cm_all_true.append(cm_AR_true)
                     cm_all_true.append(cm_HS_true)
@@ -209,8 +209,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 val_loss_trace += loss_trace.item()
 
                 # insert evaluate_cms(pred = torch.sigmoid(output), ...)
-                mse_outputs = evaluate_cm(pred = torch.sigmoid(output), pred_cm = output_cms, true_cm = cm_all_true)
-                return 0
+                mse_outputs, mses = evaluate_cm(pred = torch.sigmoid(output), pred_cm = output_cms, true_cm = cm_all_true)
+
                 # Calculate the Dice 
                 pred = torch.sigmoid(output) > 0.5
                 dice = dice_coefficient(pred.float(), y_avrg)
@@ -226,7 +226,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_dice_values.append(train_dice)
         val_dice_values.append(val_dice)
 
-        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
+        print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}, Val MSE AR: {mses[0]:.4f}')
 
         scheduler.step()
 

@@ -164,7 +164,7 @@ def evaluate_cm(pred, pred_cm, true_cm):
         output = output.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         
         output = output > 0.5
-        print("output shape: ", output.shape)
+        # print("output shape: ", output.shape)
         outputs.append(output)
 
     return outputs, mses
