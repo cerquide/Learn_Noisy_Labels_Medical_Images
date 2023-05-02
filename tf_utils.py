@@ -114,6 +114,16 @@ def calculate_cm(pred, true):
    
     print("pred: ", pred.size())
     print("true: ", true.size())
+    if isinstance(pred[0], int):
+        print("Data contains integer values")
+    else:
+        print("Data does not contain integer values")
+        print(pred[42])
+    if isinstance(true[0], int):
+        print("Data contains integer values")
+    else:
+        print("Data does not contain integer values")
+        print(true[42])
 
     pred = pred.view(-1)
     true = true.view(-1)
