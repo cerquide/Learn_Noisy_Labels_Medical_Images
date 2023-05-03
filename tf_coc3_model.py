@@ -39,6 +39,7 @@ log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc3_tf
 
 IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 DEVICE = 'cuda'
+ALPHA = 0.5
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
@@ -153,7 +154,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
-            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, alpha = ALPHA)
             
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
