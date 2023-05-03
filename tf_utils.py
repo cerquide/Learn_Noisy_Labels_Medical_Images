@@ -69,6 +69,15 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
 
 ### lCM ###
 
+def print_cms(cms):
+
+    b, c, w, h = cms[0].size()
+
+    cms_ar = cms[0].view(b, 2, 2, w, h)
+    cms_ar = torch.nn.Softmax(dim = 1)(cms_ar)
+    print("AR CM: ", cms_ar[0, :, :, 0, 0])
+    
+
 def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
 
     main_loss = 0.0
@@ -83,9 +92,10 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
     b, c, w, h = pred_norm.size()
     # print(pred_norm.size())
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
-    print("AR CM: ", cms[0][0, :, 0, 0])
-    print("HS CM: ", cms[1][0, :, 0, 0])
-    print("SG CM: ", cms[2][0, :, 0, 0])
+    # print("AR CM: ", cms[0].view(b, 2, 2, w, h))
+    # print("HS CM: ", cms[1][0, :, 0, 0])
+    # print("SG CM: ", cms[2][0, :, 0, 0])
+    print_cms(cms)
     for cm, label_noisy in zip(cms, labels):
         # print(cm.size())
         # print(cm[0, :, 0, 0])
