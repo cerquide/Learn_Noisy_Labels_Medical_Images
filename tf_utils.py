@@ -175,7 +175,8 @@ def evaluate_cm(pred, pred_cm, true_cm):
     mses = []
 
     for j, cm in enumerate(pred_cm):
-        # print(cm.size())
+        
+        cm = cm[:, 0, :, :].unsqueeze(1)
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
         cm = cm / cm.sum(1, keepdim = True)
         if j < len(true_cm):
