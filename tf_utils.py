@@ -81,12 +81,14 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
 
     # pred_norm = torch.cat([mask_prob, back_prob], dim = 1)
     b, c, w, h = pred_norm.size()
-    print(pred_norm.size())
+    # print(pred_norm.size())
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
-
+    print("AR CM: ", cms[0])
+    print("HS CM: ", cms[1])
+    print("SG CM: ", cms[2])
     for cm, label_noisy in zip(cms, labels):
-        print(cm.size())
-        print(cm[0, :, 0, 0])
+        # print(cm.size())
+        # print(cm[0, :, 0, 0])
         cm = cm[:, 0, :, :].unsqueeze(1)
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
 
