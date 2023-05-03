@@ -17,7 +17,7 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
-from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM
+from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, combined_loss
 from tf_utils import plot_performance
 from tf_utils import test_lGM
 from tf_utils import calculate_cm, evaluate_cm
@@ -155,6 +155,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # loss = dice_loss(output, y_avrg)
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
             
+            loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = labels_all.append(y_avrg))
+            return 0
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
@@ -165,7 +167,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             pred = torch.sigmoid(output) > 0.5
             train_dice_ = dice_coefficient(pred.float(), y_avrg)
             train_dice += train_dice_.item()
-
+        
         train_loss /= len(train_loader)
         train_loss_dice /= len(train_loader)
         train_loss_trace /= len(train_loader)

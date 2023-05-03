@@ -37,7 +37,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     back_prob = 1 - pred_norm
 
     pred_norm = torch.cat([mask_prob, back_prob], dim = 1)
-    b, c, h, w = pred_norm.size()
+    b, c, w, h = pred_norm.size()
    
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
@@ -54,7 +54,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         
         pred_noisy = torch.bmm(cm, pred_norm) #.view(b*h*w, c)
         
-        pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
+        pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, w, h)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         pred_noisy = pred_noisy_mask.unsqueeze(1)
 
@@ -80,7 +80,7 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
     # back_prob = 1 - pred_norm
 
     # pred_norm = torch.cat([mask_prob, back_prob], dim = 1)
-    b, c, h, w = pred_norm.size()
+    b, c, w, h = pred_norm.size()
    
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
@@ -97,7 +97,7 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
         
         pred_noisy = torch.bmm(cm, pred_norm) #.view(b*h*w, c)
         
-        pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
+        pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, w, h)
         # pred_noisy_mask = pred_noisy[:, 0, :, :]
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
 
@@ -109,6 +109,34 @@ def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
     loss = main_loss + regularisation
 
     return loss, main_loss, regularisation
+
+def combined_loss(pred, cms, ys):
+
+    dice_loss = 0.
+    cms_loss = 0.
+    total_loss = 0.
+
+    pred_norm = torch.sigmoid(pred)
+
+    b, c, w, h = pred_norm.size()
+
+    y_AR, y_HS, y_SG, y_avrg = ys[0], ys[1], ys[2], ys[3]
+
+    cm_AR = calculate_cm(pred = y_AR, true = y_avrg)
+    cm_HS = calculate_cm(pred = y_HS, true = y_avrg)
+    cm_SG = calculate_cm(pred = y_SG, true = y_avrg)
+
+    print("CM size: ", cm_AR.size())
+
+    cm_AR_reshaped = cm_AR.repeat(b, 1, 1, w, h) 
+    print("CM resize: ", cm_AR_reshaped.size())   
+
+    
+
+    # pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
+
+
+    return total_loss, dice_loss, cms_loss
 
 def calculate_cm(pred, true):
    
@@ -142,10 +170,9 @@ def evaluate_cm(pred, pred_cm, true_cm):
     mses = []
 
     for j, cm in enumerate(pred_cm):
-        print(cm.size())
+        # print(cm.size())
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
         cm = cm / cm.sum(1, keepdim = True)
-
         if j < len(true_cm):
 
             cm_pred_ = cm.sum(0) / (b * h * w)
