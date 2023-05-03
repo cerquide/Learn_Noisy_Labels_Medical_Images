@@ -126,7 +126,7 @@ def combined_loss(pred, cms, ys):
     cm_HS = calculate_cm(pred = y_HS, true = y_avrg)
     cm_SG = calculate_cm(pred = y_SG, true = y_avrg)
 
-    print("CM size: ", cm_AR)
+    print("CM size: ", type(cm_AR))
 
     cm_AR_reshaped = cm_AR.repeat(b, 1, 1, w, h) 
     print("CM resize: ", cm_AR_reshaped.size())   
