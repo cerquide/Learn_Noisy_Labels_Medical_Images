@@ -122,11 +122,11 @@ def combined_loss(pred, cms, ys):
 
     y_AR, y_HS, y_SG, y_avrg = ys[0], ys[1], ys[2], ys[3]
 
-    cm_AR = calculate_cm(pred = y_AR, true = y_avrg)
-    cm_HS = calculate_cm(pred = y_HS, true = y_avrg)
-    cm_SG = calculate_cm(pred = y_SG, true = y_avrg)
+    cm_AR = torch.tensor(calculate_cm(pred = y_AR, true = y_avrg))
+    cm_HS = torch.tensor(calculate_cm(pred = y_HS, true = y_avrg))
+    cm_SG = torch.tensor(calculate_cm(pred = y_SG, true = y_avrg))
 
-    print("CM size: ", type(cm_AR))
+    print("CM size: ", cm_AR.size())
 
     cm_AR_reshaped = cm_AR.repeat(b, 1, 1, w, h) 
     print("CM resize: ", cm_AR_reshaped.size())   
