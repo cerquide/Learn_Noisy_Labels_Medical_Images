@@ -209,7 +209,7 @@ def calculate_cm(y_pred, y_true):
     col_sums = confusion_matrix.sum(dim = 0)
     confusion_matrix = confusion_matrix / col_sums
 
-    return confusion_matrix.round(4) * 100
+    return torch.round(confusion_matrix * 10000) / 10000 * 100
    
 def evaluate_cm(pred, pred_cm, true_cm):
 
