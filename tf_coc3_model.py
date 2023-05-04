@@ -197,8 +197,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             print("HS CM: ", cm_HS_true)
             print("SG CM: ", cm_SG_true)
         
-            return 0
-
         # for cm in output_cms:
         #     print("CM :", cm[0, :, :, 0, 0])
 
