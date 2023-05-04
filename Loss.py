@@ -24,8 +24,8 @@ def noisy_label_loss(pred, cms, labels, alpha=0.1):
     main_loss = 0.0
     regularisation = 0.0
     b, c, h, w = pred.size()
-    print("pred size: ", pred.size())
-    print("cm size: ", cms[0].size() )
+    # print("pred size: ", pred.size())
+    # print("cm size: ", cms[0].size() )
     # if 2 classes
     binary = True
 
@@ -153,8 +153,8 @@ def dice_loss(input, target):
 
     b, c, h, w = input.size()
     
-    print("iflat: ", input.size() )
-    print("iflat: ", target.size() )
+    # print("iflat: ", input.size() )
+    # print("iflat: ", target.size() )
     if c != 1:
         input_sig = torch.sigmoid(input)
         target = target.squeeze(1)
