@@ -141,12 +141,12 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     for epoch in range(epochs):
         # Train
 
-        print("Before train")
-        print_matrices(model)
+        #print("Before train")
+        #print_matrices(model)
 
         model.train()
-        print("After train")
-        print_matrices(model)
+        #print("After train")
+        #print_matrices(model)
 
         train_loss = 0.0
         train_loss_dice = 0.0
@@ -164,13 +164,13 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             optimizer.zero_grad()
 
-            print("Before model call")
-            print_matrices(model)
+            #print("Before model call")
+            #print_matrices(model)
 
             output, output_cms = model(X)
 
-            print("After model call")
-            print_matrices(model)
+            #print("After model call")
+            #print_matrices(model)
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
@@ -250,7 +250,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_dice_values.append(val_dice)
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
-
+        print_matrices(model)
         scheduler.step()
 
         if val_loss < best_val_loss:
