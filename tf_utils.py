@@ -59,7 +59,7 @@ def save_borders(boolean, tensor, annotator = 1):
 
     for i in range(tensor.shape[0]):
 
-        plt.imshow(borders[i])
+        plt.imshow(borders[i].detach().numpy())
         plt.savefig(f'./tf_coc3/wtTL/borders/border_{i}_annotator_{annotator}.png')
         plt.clf()
 
