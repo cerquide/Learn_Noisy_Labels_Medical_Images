@@ -20,16 +20,14 @@ def dice_coefficient(pred, target):
 def dice_loss(pred, target):
     
     pred = torch.sigmoid(pred)
-    
-    print(pred.size())
-    print(target.size())
 
     return 1 - dice_coefficient(pred, target)
 
 def dice_loss2(pred, target):
-    print(pred.size())
-    print(target.size())
-    target = target.unsqueeze(1)
+    # print(pred.size())
+    # print(target.size())
+    # target = target.unsqueeze(1)
+
     return 1 - dice_coefficient(pred, target)
 
 ### GCM ###
