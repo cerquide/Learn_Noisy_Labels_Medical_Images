@@ -43,6 +43,8 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
 
     for cm, label_noisy in zip(cms, labels):
         
+        print("CM :", cm[0, :, 0, 0])
+
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
 
         # normalisation along the rows:
@@ -61,6 +63,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
         main_loss += loss_current
         regularisation += torch.trace(torch.transpose(torch.sum(cm, dim = 0), 0, 1)).sum() / (b * h * w)
+    print("=====================")
 
     regularisation = alpha * regularisation
     loss = main_loss + regularisation
