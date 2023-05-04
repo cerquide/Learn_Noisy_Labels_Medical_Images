@@ -110,10 +110,10 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         pred_noisy = pred_noisy_mask
         print(pred_noisy_mask.size())
-        print(clear_tensor.unsqueeze(1))
-        print(unclear_tensor.unsqueeze(1))
-        print(pred_init.unsueeze(1))
-        pred_noisy = clear_tensor.unsqueeze(1) * pred_init.unsueeze(1) + unclear_tensor.unsqueeze(1) * pred_noisy_mask
+        print(clear_tensor.unsqueeze(1).size())
+        print(unclear_tensor.unsqueeze(1).size())
+        print(pred_init.unsqueeze(1).size())
+        pred_noisy = clear_tensor.unsqueeze(1) * pred_init.unsqueeze(1) + unclear_tensor.unsqueeze(1) * pred_noisy_mask
         print(pred_noisy.size())
         return 0, 0, 0
         # loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
