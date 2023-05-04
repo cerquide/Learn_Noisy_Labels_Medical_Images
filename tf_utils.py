@@ -24,8 +24,8 @@ def dice_loss(pred, target):
     return 1 - dice_coefficient(pred, target)
 
 def dice_loss2(pred, target):
-    # print(pred.size())
-    # print(target.size())
+    print(pred.size())
+    print(target.size())
     target = target.unsqueeze(1)
     return 1 - dice_coefficient(pred, target)
 
