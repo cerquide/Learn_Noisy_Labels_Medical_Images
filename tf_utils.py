@@ -40,6 +40,17 @@ def dice_loss2(pred, target):
     return 1 - dice_coefficient2(pred, target)
 
 ### GCM ###
+def save_histogram(tensor):
+
+    for i in range(tensor.shape[0]):
+        bins = np.arange(0.0, 1.1, 0.1)
+        hist, _ = np.histogram(tensor[i].numpy(), bins = bins)
+
+        plt.bar(bins[:-1], hist, width = 0.1)
+
+        plt.savefig(f'./tf_coc3/wtTL/histograms/histogram_{i}.png')
+        plt.clf()
+    
 
 def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
 
@@ -48,6 +59,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
 
     print("Pred:",pred)
     pred_norm = torch.sigmoid(pred)
+    save_histogram(pred_norm)
     print("Pred norm:",pred_norm)
     mask_prob = pred_norm
     back_prob = 1 - pred_norm

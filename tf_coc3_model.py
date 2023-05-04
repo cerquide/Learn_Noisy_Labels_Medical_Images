@@ -162,8 +162,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_HS)
             labels_all.append(y_SG)
 
-            
-
             optimizer.zero_grad()
 
             #print("Before model call")
@@ -177,6 +175,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, alpha = ALPHA)
+            return
             
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
@@ -190,18 +189,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             pred = torch.sigmoid(output) > 0.5
             train_dice_ = dice_coefficient(pred.float(), y_avrg)
             train_dice += train_dice_.item()
-        
-        # print("Real CMs")
-        # print("========")
-        # print(y_avrg)
-        # cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
-        # cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
-        # cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
-        # print("Confusion Matrix AR: ", cm_AR_true)
-        # print("Confusion Matrix HS: ", cm_HS_true)
-        # print("Confusion Matrix SG: ", cm_SG_true)
-        for cm in output_cms:
-            print("CM :", cm[0, :, :, 0, 0])
+
+        # for cm in output_cms:
+        #     print("CM :", cm[0, :, :, 0, 0])
 
         train_loss /= len(train_loader)
         train_loss_dice /= len(train_loader)
@@ -229,9 +219,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                     cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
                     cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
                     cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
-                    # print("Confusion Matrix AR: ", cm_AR_true)
-                    # print("Confusion Matrix HS: ", cm_HS_true)
-                    # print("Confusion Matrix SG: ", cm_SG_true)
                     
                     cm_all_true.append(cm_AR_true)
                     cm_all_true.append(cm_HS_true)
@@ -264,7 +251,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_dice_values.append(val_dice)
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
-        print_matrices(model)
+        # print_matrices(model)
         scheduler.step()
 
         if val_loss < best_val_loss:
@@ -278,8 +265,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 print("Early stopping")
                 break
 
+    # Test
     with torch.no_grad():
-        for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
+        for X, y_AR, y_HS, y_SG, y_avrg in test_loader:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
