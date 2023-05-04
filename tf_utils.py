@@ -201,10 +201,13 @@ def calculate_cm(y_pred, y_true):
     tn = torch.sum((y_pred == 0) & (y_true == 0)).item()
     fn = torch.sum((y_pred == 0) & (y_true == 1)).item()
 
-    total_pixels = y_pred.numel()
+    # total_pixels = y_pred.numel()
 
     # create the confusion matrix
-    confusion_matrix = torch.tensor([[tn, fp], [fn, tp]]) / total_pixels
+    confusion_matrix = torch.tensor([[tn, fp], [fn, tp]])
+
+    col_sums = confusion_matrix.sum(dim = 0)
+    confusion_matrix = confusion_matrix / col_sums
 
     return confusion_matrix
    
