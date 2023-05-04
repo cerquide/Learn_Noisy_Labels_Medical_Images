@@ -193,6 +193,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         
         print("Real CMs")
         print("========")
+        print(y_avrg)
         cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
         cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
         cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
