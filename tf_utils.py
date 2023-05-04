@@ -61,6 +61,20 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     # print("Pred:",pred)
     pred_norm = torch.sigmoid(pred)
     save_histogram(pred_norm)
+    
+    # Boolean #
+    boolean_tensor = torch.logical_and(pred_norm >= 0.2, pred_norm <= 0.8)
+    print("boolean tensor size: ", boolean_tensor.size())
+
+    # Count number of True and False values
+    num_true = boolean_tensor.sum().item()
+    num_false = (boolean_tensor.numel() - num_true)
+
+    # Print results
+    print(f"Number of True values: {num_true}")
+    print(f"Number of False values: {num_false}")
+
+    return 0, 0, 0
     # print("Pred norm:",pred_norm)
     mask_prob = pred_norm
     back_prob = 1 - pred_norm

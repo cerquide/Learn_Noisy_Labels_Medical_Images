@@ -175,7 +175,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, alpha = ALPHA)
-            
+            return 0
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
             loss.backward()
@@ -189,13 +189,16 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             train_dice_ = dice_coefficient(pred.float(), y_avrg)
             train_dice += train_dice_.item()
 
-            cm_AR_true = calculate_cm(y_pred = y_AR, y_true = y_avrg)
-            cm_HS_true = calculate_cm(y_pred = y_HS, y_true = y_avrg)
-            cm_SG_true = calculate_cm(y_pred = y_SG, y_true = y_avrg)
-
-            print("AR CM: ", cm_AR_true)
-            print("HS CM: ", cm_HS_true)
-            print("SG CM: ", cm_SG_true)
+            # # print CMs Real
+            # cm_AR_true = calculate_cm(y_pred = y_AR, y_true = y_avrg)
+            # cm_HS_true = calculate_cm(y_pred = y_HS, y_true = y_avrg)
+            # cm_SG_true = calculate_cm(y_pred = y_SG, y_true = y_avrg)
+            # # Real CMs #
+            # # ======== #
+            # print("==== Real CMs ====")
+            # print("AR CM: ", cm_AR_true)
+            # print("HS CM: ", cm_HS_true)
+            # print("SG CM: ", cm_SG_true)
         
         # for cm in output_cms:
         #     print("CM :", cm[0, :, :, 0, 0])
