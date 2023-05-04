@@ -195,9 +195,6 @@ def calculate_cm(y_pred, y_true):
     y_pred = y_pred.view(-1)
     y_true = y_true.view(-1)
 
-    y_pred = y_pred.cpu().detach().numpy()
-    y_true = y_true.cpu().detach().numpy()
-
     # compute the number of true positives, false positives, true negatives, and false negatives
     tp = torch.sum((y_pred == 1) & (y_true == 1)).item()
     fp = torch.sum((y_pred == 1) & (y_true == 0)).item()
