@@ -19,7 +19,7 @@ from pathlib import Path
 from tf_utils import dice_coefficient, dice_loss
 from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, combined_loss
 from tf_utils import plot_performance
-from tf_utils import test_lGM
+from tf_utils import test_lGM, test_dict
 from tf_utils import calculate_cm, evaluate_cm
 ### ======================== ###
 
@@ -170,6 +170,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             #print_matrices(model)
 
             output, output_cms = model(X)
+
+            test_dict(None, None, labels_all, names)
+            return 0
+
 
             #print("After model call")
             #print_matrices(model)
