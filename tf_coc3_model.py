@@ -175,7 +175,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, alpha = ALPHA)
-            return 0
+
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
             loss.backward()
