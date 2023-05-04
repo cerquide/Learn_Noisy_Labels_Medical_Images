@@ -49,8 +49,8 @@ patience = 500
 
 GCM = False  # for using Global CM, else local CM.
 TL = True   # for using transfer learning
-weights_path = './tf_coc/coc_Final_dict.pt'
-# weights_path = './tf_skin/skin_Final_dict.pt'
+# weights_path = './tf_coc/coc_Final_dict.pt'
+weights_path = './tf_skin/skin_Final_dict.pt'
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
     path_to_save.mkdir(exist_ok = True)
