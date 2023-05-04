@@ -153,7 +153,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_loss_trace = 0.0
         train_dice = 0.0
 
-        for X, y_AR, y_HS, y_SG, y_avrg in train_loader:
+        for name, X, y_AR, y_HS, y_SG, y_avrg in train_loader:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
@@ -161,8 +161,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_AR)
             labels_all.append(y_HS)
             labels_all.append(y_SG)
-            print(len(labels_all))
-            print(len(labels_all[0]))
+            
+            print(name)
             return 0
             optimizer.zero_grad()
 

@@ -220,8 +220,6 @@ class COC3TrainDataset(Dataset):
             labelname = all_images[rand_idx]
             path_label, labelname = os.path.split(labelname)
             labelname, labelext = os.path.splitext(labelname)
-        
-            print(labelname)
             
             image, label_AR, label_HS, label_SG, label_avrg = load_coc_3_train_data(image_path, 
                                                                                     mask_AR_path,
@@ -241,4 +239,4 @@ class COC3TrainDataset(Dataset):
             label_SG = torch.from_numpy(label_SG).float()
             label_avrg = torch.from_numpy(label_avrg).float()
 
-            return image, label_AR, label_HS, label_SG, label_avrg
+            return labelname, image, label_AR, label_HS, label_SG, label_avrg
