@@ -198,7 +198,7 @@ def trainSingleModel(model_seg,
     #
     writer = SummaryWriter(path_name + '/Log/Log_' + model_name)
 
-    model_seg_stepwise = True
+    model_seg_stepwise = False
 
     if model_seg_stepwise == True:
 
@@ -473,8 +473,8 @@ def trainSingleModel(model_seg,
                 _, train_output = torch.max(outputs_logits, dim=1)
                 ###_, train_output = torch.max(outputs_logits_noisy[0], dim=1)
                 #
-                # train_iou = segmentation_scores(labels_avrg.cpu().detach().numpy(), train_output.cpu().detach().numpy(), class_no)
-                train_iou = dice_coef_simplified(train_output, labels_avrg)
+                train_iou = segmentation_scores(labels_avrg.cpu().detach().numpy(), train_output.cpu().detach().numpy(), class_no)
+                # train_iou = dice_coef_simplified(train_output, labels_avrg)
                 #
                 # print(train_iou)
                 running_loss += loss
