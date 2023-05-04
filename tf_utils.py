@@ -52,7 +52,7 @@ def save_histogram(tensor):
         plt.savefig(f'./tf_coc3/wtTL/histograms/histogram_{i}.png')
         plt.clf()
     
-def save_borders(boolean, tensor, annotator = 1):
+def save_borders(boolean, tensor, annotator = 1, name = 'unnamed'):
 
     borders = boolean * tensor
     borders = borders.cpu()
@@ -60,10 +60,10 @@ def save_borders(boolean, tensor, annotator = 1):
     for i in range(tensor.shape[0]):
 
         plt.imshow(borders[i].detach().numpy())
-        plt.savefig(f'./tf_coc3/wtTL/borders/border_{i}_annotator_{annotator}.png')
+        plt.savefig(f'./tf_coc3/wtTL/borders/border_{name}_annotator_{annotator}.png')
         plt.clf()
 
-def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
+def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
     main_loss = 0.0
     regularisation = 0.0
@@ -100,7 +100,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
     enum = 0
-    for cm, label_noisy in zip(cms, labels):
+    for cm, label_noisy, name in zip(cms, labels, names):
 
         enum += 1
 
@@ -120,7 +120,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         
-        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum)
+        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, name)
 
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         # pred_noisy = pred_noisy_mask

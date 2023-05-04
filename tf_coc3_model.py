@@ -162,8 +162,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_HS)
             labels_all.append(y_SG)
             
-            print(name)
-            return 0
+            names = name
+
             optimizer.zero_grad()
 
             #print("Before model call")
@@ -176,7 +176,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
-            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, alpha = ALPHA)
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
 
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
@@ -218,7 +218,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_loss_trace = 0.0
         val_dice = 0.0
         with torch.no_grad():
-            for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
+            for name, X, y_AR, y_HS, y_SG, y_avrg in val_loader:
 
                 X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
@@ -240,7 +240,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
-                loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+                loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
                 val_loss += loss.item()
                 val_loss_dice += loss_dice.item()
                 val_loss_trace += loss_trace.item()
@@ -280,7 +280,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     # Test
     with torch.no_grad():
-        for X, y_AR, y_HS, y_SG, y_avrg in test_loader:
+        for name, X, y_AR, y_HS, y_SG, y_avrg in test_loader:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
 
@@ -292,7 +292,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss 
             output, output_cms = model(X)
             # loss = criterion(output, y)
-            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
             val_loss += loss.item()
             val_loss_dice += loss_dice.item()
             val_loss_trace += loss_trace.item()
