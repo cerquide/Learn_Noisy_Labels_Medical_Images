@@ -247,6 +247,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             if patience_counter >= patience:
                 print("Early stopping")
                 break
+            
+        for name, param in model.named_parameters():
+            if 'cms_output' in name:
+                print(param)
 
     with torch.no_grad():
         for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
