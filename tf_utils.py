@@ -71,8 +71,8 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     # Count number of True and False values
     num_true_c = clear_tensor.sum().item()
     num_false_c = (clear_tensor.numel() - num_true_c)
-    num_true_u = clear_tensor.sum().item()
-    num_false_u = (clear_tensor.numel() - num_true_u)
+    num_true_u = unclear_tensor.sum().item()
+    num_false_u = (unclear_tensor.numel() - num_true_u)
 
     # Print results
     print(f"Number of True values Clear: {num_true_c}")
