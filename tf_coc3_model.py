@@ -51,6 +51,10 @@ GCM = True  # for using Global CM, else local CM.
 TL = True   # for using transfer learning
 weights_path = './tf_coc/coc_Final_dict.pt'
 # weights_path = './tf_skin/skin_Final_dict.pt'
+def print_matrices(model):
+    for name, param in model.named_parameters():
+        if 'cms_output' in name:
+            print(param)
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
     path_to_save.mkdir(exist_ok = True)
@@ -111,11 +115,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     total_params_grad  = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("Total number of params with grad: ", total_params_grad)
 
-    for name, param in model.named_parameters():
-        if 'cms_output' in name:
-            print(param)
+    
 
     print("Model initialized...")
+    print_matrices(model)
     criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
@@ -137,7 +140,13 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     
     for epoch in range(epochs):
         # Train
+
+        print("Before train")
+        print_matrices(model)
+
         model.train()
+        print("After train")
+        print_matrices(model)
 
         train_loss = 0.0
         train_loss_dice = 0.0
@@ -154,7 +163,14 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_SG)
 
             optimizer.zero_grad()
+
+            print("Before model call")
+            print_matrices(model)
+
             output, output_cms = model(X)
+
+            print("After model call")
+            print_matrices(model)
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
@@ -247,10 +263,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             if patience_counter >= patience:
                 print("Early stopping")
                 break
-            
-        for name, param in model.named_parameters():
-            if 'cms_output' in name:
-                print(param)
 
     with torch.no_grad():
         for X, y_AR, y_HS, y_SG, y_avrg in val_loader:
