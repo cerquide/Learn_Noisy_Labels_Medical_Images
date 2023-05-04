@@ -74,7 +74,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     print(f"Number of True values: {num_true}")
     print(f"Number of False values: {num_false}")
 
-    return 0, 0, 0
+    # return 0, 0, 0
     # print("Pred norm:",pred_norm)
     mask_prob = pred_norm
     back_prob = 1 - pred_norm
