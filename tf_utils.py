@@ -58,10 +58,10 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     main_loss = 0.0
     regularisation = 0.0
 
-    print("Pred:",pred)
+    # print("Pred:",pred)
     pred_norm = torch.sigmoid(pred)
     save_histogram(pred_norm)
-    print("Pred norm:",pred_norm)
+    # print("Pred norm:",pred_norm)
     mask_prob = pred_norm
     back_prob = 1 - pred_norm
 
