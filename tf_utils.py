@@ -66,7 +66,6 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     increment = 0.1
     clear_tensor = torch.logical_or(pred_norm >= (1 - increment), pred_norm <= increment)
     unclear_tensor = torch.logical_and(pred_norm < (1 - increment), pred_norm > increment)
-    print("boolean tensor size: ", clear_tensor.size())
 
     # Count number of True and False values
     num_true_c = clear_tensor.sum().item()
@@ -75,10 +74,10 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     num_false_u = (unclear_tensor.numel() - num_true_u)
 
     # Print results
-    print(f"Number of True values Clear: {num_true_c}")
-    print(f"Number of False values Clear: {num_false_c}")
-    print(f"Number of True values Unclear: {num_true_u}")
-    print(f"Number of False values Unclear: {num_false_u}")
+    # print(f"Number of True values Clear: {num_true_c}")
+    # print(f"Number of False values Clear: {num_false_c}")
+    # print(f"Number of True values Unclear: {num_true_u}")
+    # print(f"Number of False values Unclear: {num_false_u}")
 
     # return 0, 0, 0
     # print("Pred norm:",pred_norm)
