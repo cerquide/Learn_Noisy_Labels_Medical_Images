@@ -212,7 +212,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 val_loss_trace += loss_trace.item()
 
                 # insert evaluate_cms(pred = torch.sigmoid(output), ...)
-                mse_outputs, mses = evaluate_cm(pred = torch.sigmoid(output), pred_cm = output_cms, true_cm = cm_all_true)
+                # mse_outputs, mses = evaluate_cm(pred = torch.sigmoid(output), pred_cm = output_cms, true_cm = cm_all_true)
 
                 # Calculate the Dice 
                 pred = torch.sigmoid(output) > 0.5
