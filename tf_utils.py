@@ -42,8 +42,8 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
     for cm, label_noisy in zip(cms, labels):
-        print(cm.size())
-        print("CM :", cm[:, 0, 0, 0])
+
+        print("CM :", cm[0, :, :, 0, 0])
 
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
 
