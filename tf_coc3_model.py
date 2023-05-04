@@ -197,9 +197,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_loss_trace /= len(train_loader)
         train_dice /= len(train_loader)
 
-        cm_AR_true = calculate_cm(y_pred = y_AR, y_true = y_avrg)
-        cm_HS_true = calculate_cm(y_pred = y_HS, y_true = y_avrg)
-        cm_SG_true = calculate_cm(y_pred = y_SG, y_true = y_avrg)
+        cm_AR_true = calculate_cm(y_pred = torch.from_numpy(y_AR).to(torch.float32), y_true = torch.from_numpy(y_avrg).to(torch.float32))
+        cm_HS_true = calculate_cm(y_pred = torch.from_numpy(y_HS).to(torch.float32), y_true = torch.from_numpy(y_avrg).to(torch.float32))
+        cm_SG_true = calculate_cm(y_pred = torch.from_numpy(y_SG).to(torch.float32), y_true = torch.from_numpy(y_avrg).to(torch.float32))
 
         print("AR CM: ", cm_AR_true.size())
         print("HS CM: ", cm_HS_true.size())
