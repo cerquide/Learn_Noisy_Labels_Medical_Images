@@ -71,7 +71,9 @@ class gcm_layers(nn.Module):
         
         self.input_height = input_height
         self.input_width = input_width
-        self.global_weights = nn.Parameter(torch.eye(2))
+        x = torch.eye(2)
+        y = torch.ones_like(x)/2.
+        self.global_weights = nn.Parameter(0.99*x+0.01*y)
 
     def forward(self, x):
 
