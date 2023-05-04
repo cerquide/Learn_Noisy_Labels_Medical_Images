@@ -63,18 +63,22 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
     save_histogram(pred_norm)
     
     # Boolean #
-    boolean_tensor = torch.logical_and(pred_norm >= 0.3, pred_norm <= 0.7)
-    print("boolean tensor size: ", boolean_tensor.size())
+    increment = 0.1
+    clear_tensor = torch.logical_and(pred_norm >= increment, pred_norm <= (1 - increment))
+    unclear_tensor = torch.logical_or(pred_norm < (1 - increment), pred_norm > increment)
+    print("boolean tensor size: ", clear_tensor.size())
 
     # Count number of True and False values
-    num_true = boolean_tensor.sum().item()
-    num_false = (boolean_tensor.numel() - num_true)
+    num_true_c = clear_tensor.sum().item()
+    num_false_c = (clear_tensor.numel() - num_true_c)
+    num_true_u = clear_tensor.sum().item()
+    num_false_u = (clear_tensor.numel() - num_true_u)
 
     # Print results
-    print(f"Number of True values: {num_true}")
-    print(f"Number of False values: {num_false}")
-    print(f"% of True values: {num_true / (num_false + num_true)}")
-    print(f"% of False values: {num_false / (num_false + num_true)}")
+    print(f"Number of True values Clear: {num_true_c}")
+    print(f"Number of False values Clear: {num_false_c}")
+    print(f"Number of True values Unclear: {num_true_u}")
+    print(f"Number of False values Unclear: {num_false_u}")
 
     # return 0, 0, 0
     # print("Pred norm:",pred_norm)
