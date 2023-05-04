@@ -118,7 +118,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     
 
     print("Model initialized...")
-    print_matrices(model)
+    # print_matrices(model)
     criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
@@ -175,7 +175,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
             loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, alpha = ALPHA)
-            return
             
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
@@ -197,6 +196,15 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         train_loss_dice /= len(train_loader)
         train_loss_trace /= len(train_loader)
         train_dice /= len(train_loader)
+
+        cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
+        cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
+        cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
+
+        print("AR CM: ", cm_AR_true)
+        print("HS CM: ", cm_HS_true)
+        print("SG CM: ", cm_SG_true)
+        return 0
 
         # Validate
         model.eval()

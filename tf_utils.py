@@ -189,18 +189,26 @@ def combined_loss(pred, cms, ys):
 
     return total_loss, dice_loss, cms_loss
 
-def calculate_cm(pred, true):
+def calculate_cm(y_pred, y_true):
+
+    # flatten the tensors into a 1D array
+    y_pred = y_pred.view(-1)
+    y_true = y_true.view(-1)
+
+    y_pred = y_pred.cpu().detach().numpy()
+    y_true = y_true.cpu().detach().numpy()
+
+    # compute the number of true positives, false positives, true negatives, and false negatives
+    tp = torch.sum((y_pred == 1) & (y_true == 1)).item()
+    fp = torch.sum((y_pred == 1) & (y_true == 0)).item()
+    tn = torch.sum((y_pred == 0) & (y_true == 0)).item()
+    fn = torch.sum((y_pred == 0) & (y_true == 1)).item()
+
+    # create the confusion matrix
+    confusion_matrix = torch.tensor([[tn, fp], [fn, tp]])
+
+    return confusion_matrix
    
-    pred = pred.view(-1)
-    true = true.view(-1)
-
-    pred = pred.cpu().detach().numpy()
-    true = true.cpu().detach().numpy()
-
-    confusion_matrices = confusion_matrix(y_true = np.round(true).astype(int), y_pred = np.round(pred).astype(int), normalize = 'all')
-    
-    return confusion_matrices
-
 def evaluate_cm(pred, pred_cm, true_cm):
 
     # print("pred: ", pred.size())
