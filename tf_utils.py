@@ -24,6 +24,8 @@ def dice_loss(pred, target):
     return 1 - dice_coefficient(pred, target)
 
 def dice_loss2(pred, target):
+    print(pred.size())
+    
     return 1 - dice_coefficient(pred, target)
 
 ### GCM ###
