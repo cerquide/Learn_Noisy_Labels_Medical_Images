@@ -18,9 +18,11 @@ def dice_coefficient(pred, target):
     return (2.0 * intersection + smooth) / (pred_flat.sum() + target_flat.sum() + smooth)
 
 def dice_loss(pred, target):
+    
+    pred = torch.sigmoid(pred)
+    
     print(pred.size())
     print(target.size())
-    pred = torch.sigmoid(pred)
 
     return 1 - dice_coefficient(pred, target)
 
