@@ -17,6 +17,15 @@ def dice_coefficient(pred, target):
 
     return (2.0 * intersection + smooth) / (pred_flat.sum() + target_flat.sum() + smooth)
 
+def dice_coefficient2(pred, target):
+
+    smooth = 1e-6
+    pred_flat = pred.reshape(-1)
+    target_flat = target.reshape(-1)
+    intersection = (pred_flat * target_flat).sum()
+
+    return (2.0 * intersection + smooth) / (pred_flat.sum() + target_flat.sum() + smooth)
+
 def dice_loss(pred, target):
     
     pred = torch.sigmoid(pred)
@@ -67,7 +76,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         pred_noisy = pred_noisy_mask.unsqueeze(1)
 
         # loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
-        loss_current = dice_loss2(pred_noisy, label_noisy.reshape(b, h, w).long())
+        loss_current = dice_loss2(pred_noisy, label_noisy.view(b, h, w).long())
         main_loss += loss_current
         regularisation += torch.trace(torch.transpose(torch.sum(cm, dim = 0), 0, 1)).sum() / (b * h * w)
     #print("=====================")
