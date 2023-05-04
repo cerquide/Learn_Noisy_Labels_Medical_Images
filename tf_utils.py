@@ -110,11 +110,11 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         # pred_noisy = pred_noisy_mask
         pred_noisy = clear_tensor.squeeze(1) * pred_init.squeeze(1) + unclear_tensor.squeeze(1) * pred_noisy_mask
 
-        # loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
-        # loss_current = dice_loss2(pred_noisy, label_noisy.view(b, h, w).long())
         criterion = torch.nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
+        # loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
+        loss_current = dice_loss2(pred_noisy, label_noisy.view(b, h, w).long())
         # Calculate the Loss
-        loss_current = criterion(pred_noisy, label_noisy.view(b, h, w))
+        # loss_current = criterion(pred_noisy, label_noisy.view(b, h, w))
         main_loss += loss_current
         regularisation += torch.trace(torch.transpose(torch.sum(cm, dim = 0), 0, 1)).sum() / (b * h * w)
     #print("=====================")
