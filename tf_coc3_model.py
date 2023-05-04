@@ -111,7 +111,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     total_params_grad  = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("Total number of params with grad: ", total_params_grad)
 
-    for name, param in model:
+    for name, param in model.named_parameters():
         if 'cms_output' in name:
             print(param)
     return 0
