@@ -66,7 +66,8 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         pred_noisy = pred_noisy_mask.unsqueeze(1)
 
-        loss_current = dice_loss2(pred_noisy, label_noisy.view(b, h, w).long())
+        # loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
+        loss_current = dice_loss2(pred_noisy, label_noisy.reshape(b, h, w).long())
         main_loss += loss_current
         regularisation += torch.trace(torch.transpose(torch.sum(cm, dim = 0), 0, 1)).sum() / (b * h * w)
     #print("=====================")
