@@ -161,7 +161,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_AR)
             labels_all.append(y_HS)
             labels_all.append(y_SG)
-
+            print(len(labels_all))
+            print(len(labels_all[0]))
+            return 0
             optimizer.zero_grad()
 
             #print("Before model call")
