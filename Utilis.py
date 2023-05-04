@@ -2016,7 +2016,7 @@ def evaluate_noisy_label_4(data, model1, class_no):
             # print("preds: ", v_output.size())
             # v_dice_ = segmentation_scores(v_labels_avrg.cpu().detach().numpy(), v_outputs_logits.cpu().detach().numpy(), class_no)
             v_dice_ = segmentation_scores(v_labels_avrg.cpu().detach().numpy(), v_output.cpu().detach().numpy(), class_no)
-            v_dice_ = dice_coef_simplified(v_output, v_labels_avrg)
+            # v_dice_ = dice_coef_simplified(v_output, v_labels_avrg)
             # v_dice_ = binary_dice_coefficient(v_labels_avrg.cpu().detach().numpy(), v_output.cpu().detach().numpy())
             # v_dice_ = dice_coef_default(v_output.to(device = 'cuda'), v_labels_avrg.to(device = 'cuda'))
             #v_dice_ = dice_coef_default(model1(v_images)[0].to(device = 'cuda'), v_labels_avrg.to(device = 'cuda'))

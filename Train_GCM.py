@@ -525,9 +525,9 @@ def trainSingleModel(model_seg,
                 #
                 # dice #
                 #
-                # train_iou = segmentation_scores(labels_avrg.cpu().detach().numpy(), train_output.cpu().detach().numpy(), class_no)
+                train_iou = segmentation_scores(labels_avrg.cpu().detach().numpy(), train_output.cpu().detach().numpy(), class_no)
                 # train_iou = binary_dice_coefficient(labels_avrg.cpu().detach().numpy(), train_output.cpu().detach().numpy())
-                train_iou = dice_coef_simplified(train_output, labels_avrg)
+                # train_iou = dice_coef_simplified(train_output, labels_avrg)
                 #
                 # train_iou = dice_coef_default(train_output, labels_avrg)
                 # train_iou = dice_coef_custom(outputs_logits, labels_avrg)
