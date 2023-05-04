@@ -39,12 +39,12 @@ log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc3_tf
 
 IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
 DEVICE = 'cuda'
-ALPHA = 1.0
+ALPHA = 0.0
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
 test_split = 0.05
-epochs = 100
+epochs = 10
 patience = 500
 
 GCM = True  # for using Global CM, else local CM.

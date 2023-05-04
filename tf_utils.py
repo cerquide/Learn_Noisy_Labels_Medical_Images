@@ -52,6 +52,15 @@ def save_histogram(tensor):
         plt.savefig(f'./tf_coc3/wtTL/histograms/histogram_{i}.png')
         plt.clf()
     
+def save_borders(boolean, tensor, annotator = 1):
+
+    borders = boolean * tensor
+    borders = borders.cpu()
+
+    for i in range(tensor.shape[0]):
+
+        plt.savefig(f'./tf_coc3/wtTL/borders/border_{i}_annotator_{annotator}.png')
+        plt.clf()
 
 def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
 
@@ -89,7 +98,10 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
    
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
+    enum = 0
     for cm, label_noisy in zip(cms, labels):
+
+        enum += 1
 
         #print("CM :", cm[0, :, :, 0, 0])
 
@@ -103,12 +115,16 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         # pred_noisy: b*h*w x c x 1
         
         pred_noisy = torch.bmm(cm, pred_norm) #.view(b*h*w, c)
-        
+
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
+        
+        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum)
+
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         # pred_noisy = pred_noisy_mask
         pred_noisy = clear_tensor.squeeze(1) * pred_init.squeeze(1) + unclear_tensor.squeeze(1) * pred_noisy_mask
+
 
         criterion = torch.nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
         # loss_current = dice_loss(pred_noisy, label_noisy.view(b, h, w).long())
