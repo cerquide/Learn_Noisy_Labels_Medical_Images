@@ -52,8 +52,9 @@ def save_histogram(tensor):
         plt.savefig(f'./tf_coc3/wtTL/histograms/histogram_{i}.png')
         plt.clf()
     
-def save_borders(boolean, tensor, annotator = 1, names = 'unnamed'):
+def save_borders(boolean, tensor, annotator = 1, names = []):
 
+    print(names)
     borders = boolean * tensor
     borders = borders.cpu()
 
