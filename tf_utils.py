@@ -52,7 +52,7 @@ def save_histogram(tensor):
         plt.savefig(f'./tf_coc3/wtTL/histograms/histogram_{i}.png')
         plt.clf()
     
-def save_borders(boolean, tensor, annotator = 1, name = 'unnamed'):
+def save_borders(boolean, tensor, annotator = 1, names = 'unnamed'):
 
     borders = boolean * tensor
     borders = borders.cpu()
@@ -60,19 +60,19 @@ def save_borders(boolean, tensor, annotator = 1, name = 'unnamed'):
     for i in range(tensor.shape[0]):
 
         plt.imshow(borders[i].detach().numpy())
-        plt.savefig(f'./tf_coc3/wtTL/borders/border_{name}_annotator_{annotator}.png')
+        plt.savefig(f'./tf_coc3/wtTL/borders/border_{names[i]}_annotator_{annotator}.png')
         plt.clf()
 
-def test_dict(pred, cms, labels, names):
+# def test_dict(pred, cms, labels, names):
 
-    labels_dict_AR = dict(zip(names, labels[0]))
-    labels_dict_HS = dict(zip(names, labels[1]))
-    labels_dict_SG = dict(zip(names, labels[2]))
+#     labels_dict_AR = dict(zip(names, labels[0]))
+#     labels_dict_HS = dict(zip(names, labels[1]))
+#     labels_dict_SG = dict(zip(names, labels[2]))
 
-    # for name, label in zip(cms, labels):
+#     # for name, label in zip(cms, labels):
 
-    for key, value in labels_dict_AR.items():
-        print(key, value.size())
+#     for key, value in labels_dict_AR.items():
+#         print(key, value.size())
 
 
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
@@ -132,7 +132,7 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         
-        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum)
+        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, names)
 
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         # pred_noisy = pred_noisy_mask
