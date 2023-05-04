@@ -189,6 +189,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             train_dice_ = dice_coefficient(pred.float(), y_avrg)
             train_dice += train_dice_.item()
         
+        for cm in output_cms:
+            print("CM :", cm[0, :, :, 0, 0])
+
         train_loss /= len(train_loader)
         train_loss_dice /= len(train_loader)
         train_loss_trace /= len(train_loader)
