@@ -42,7 +42,7 @@ def dice_loss2(pred, target):
 ### GCM ###
 def save_histogram(tensor):
 
-    for i in range(tensor.shape[0]):
+    for i in range(tensor.cpu().shape[0]):
         bins = np.arange(0.0, 1.1, 0.1)
         hist, _ = np.histogram(tensor[i].numpy(), bins = bins)
 
