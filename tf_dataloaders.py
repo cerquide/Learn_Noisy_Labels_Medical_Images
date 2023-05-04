@@ -216,6 +216,9 @@ class COC3TrainDataset(Dataset):
             mask_HS_path = all_labels_HS[rand_idx]
             mask_SG_path = all_labels_SG[rand_idx]
             mask_avrg_path = all_labels_avrg[rand_idx]
+
+            labelname = all_images[rand_idx]
+            print(labelname)
             
             image, label_AR, label_HS, label_SG, label_avrg = load_coc_3_train_data(image_path, 
                                                                                     mask_AR_path,
