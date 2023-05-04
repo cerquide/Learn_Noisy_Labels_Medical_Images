@@ -63,18 +63,6 @@ def save_borders(boolean, tensor, annotator = 1, names = 'unnamed'):
         plt.savefig(f'./tf_coc3/wtTL/borders/border_{names[i]}_annotator_{annotator}.png')
         plt.clf()
 
-# def test_dict(pred, cms, labels, names):
-
-#     labels_dict_AR = dict(zip(names, labels[0]))
-#     labels_dict_HS = dict(zip(names, labels[1]))
-#     labels_dict_SG = dict(zip(names, labels[2]))
-
-#     # for name, label in zip(cms, labels):
-
-#     for key, value in labels_dict_AR.items():
-#         print(key, value.size())
-
-
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
     main_loss = 0.0
