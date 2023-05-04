@@ -109,7 +109,7 @@ def noisy_label_loss_GCM(pred, cms, labels, alpha = 0.1):
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         pred_noisy = pred_noisy_mask
-
+        print(pred_noisy.size())
         pred_noisy = clear_tensor.unsqueeze(1) * pred_init + unclear_tensor * pred_noisy_mask
         print(pred_noisy.size())
         return 0, 0, 0
