@@ -104,28 +104,28 @@ def noisy_loss(pred, cms, labels, names):
 
     threshold = 0.05
     indices = []
+    focus_pred = []
     for i in range(b):
 
         mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
         indices.append(torch.nonzero(mask))
-        print(indices[i].size())
+        # print(indices[i].size())
         new_tensor = torch.zeros(1, indices[i].size(0))
-        print(new_tensor.size())
-        print(new_tensor)
+        # print(new_tensor.size())
+        # print(new_tensor)
 
         position = 0
         for j in range(pred_flat[i].size(-1)):
             index = torch.where(indices[i] == j)[0]
             if len(index) > 0:
-                print(j)
+                # print(j)
                 new_tensor[0, position] = pred_flat[i, j]
+                focus_pred.append(new_tensor)
                 position += 1
         
-        print(new_tensor)
-
-        break
-        print(indices[i].size())
-        print(indices[i])
+        print(len(focus_pred))
+        print(focus_pred[i].size())
+        print(focus_pred[i])
         
 
     # clear, dirty = clear_pred(pred_norm)
