@@ -74,7 +74,7 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
     save_histogram(pred_norm)
     pred_init = pred_norm
     # Boolean #
-    increment = 0.1
+    increment = 0.05
     clear_tensor = torch.logical_or(pred_norm >= (1 - increment), pred_norm <= increment)
     unclear_tensor = torch.logical_and(pred_norm < (1 - increment), pred_norm > increment)
 
