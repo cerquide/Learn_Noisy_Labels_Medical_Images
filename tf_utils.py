@@ -128,7 +128,7 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         
-        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, names)
+        # save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, names)
 
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         # pred_noisy = pred_noisy_mask
