@@ -164,13 +164,14 @@ def noisy_loss(pred, cms, labels, names):
 
     enum = 0
     total_loss = 0
+    total_loss3 = 0
     for cm, label in zip(cms, focus_labels):
         enum += 1
-        print("annotator ", enum)
+
         batch_loss = 0
         # print(len(focus_pred)) 
         for i in range(len(focus_pred)):
-            print(i)
+
             cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2)).to('cuda')
             # print(cm_simple.size())
             
@@ -190,19 +191,16 @@ def noisy_loss(pred, cms, labels, names):
             # print(label[i].size())
 
             loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
-            print(loss_current.item())
 
             batch_loss += loss_current
         batch_loss = batch_loss / (i + 1)
         total_loss += batch_loss
-
+        total_loss3 += total_loss
         print("Annotator", enum)
         print("Loss: ", total_loss.item())
-
-    # clear, dirty = clear_pred(pred_norm)
-
-    # indices = (dirty == True).nonzero()
-    # print(indices)
+    print("Total Loss: ", total_loss3)
+    
+    return total_loss3, total_loss3, 0
 
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
