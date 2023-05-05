@@ -108,7 +108,7 @@ def noisy_loss(pred, cms, labels, names):
         mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
         indices.append(torch.nonzero(mask))
 
-        new_tensor = torch.gather(pred_flat[i], 1, indices.repeat(1, pred_flat[i].size(-1)))
+        new_tensor = torch.gather(pred_flat[i], 1, indices[i].repeat(1, pred_flat[i].size(-1)))
         print(new_tensor.size())
         break
         print(indices[i].size())
