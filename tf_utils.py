@@ -198,9 +198,9 @@ def noisy_loss(pred, cms, labels, names):
         total_loss3 += total_loss
         print("Annotator", enum)
         print("Loss: ", total_loss.item())
-    print("Total Loss: ", total_loss3)
-    
-    return total_loss3, total_loss3, 0
+    print("Total Loss: ", total_loss3.item())
+
+    return total_loss3, total_loss3, total_loss3 * 0
 
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 

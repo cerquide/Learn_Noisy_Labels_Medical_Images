@@ -245,7 +245,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
-                loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+                loss, loss_dice, loss_trace = noisy_loss(output, output_cms, labels_all, names)
+                # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
                 val_loss += loss.item()
                 val_loss_dice += loss_dice.item()
                 val_loss_trace += loss_trace.item()
@@ -299,7 +300,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss 
             output, output_cms = model(X)
             # loss = criterion(output, y)
-            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+            loss, loss_dice, loss_trace = noisy_loss(output, output_cms, labels_all, names)
+            # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
             val_loss += loss.item()
             val_loss_dice += loss_dice.item()
             val_loss_trace += loss_trace.item()
