@@ -100,7 +100,7 @@ def noisy_loss(pred, cms, labels, names):
 
     clear, dirty = clear_pred(pred_norm)
 
-    indices = (dirty == True)
+    indices = (dirty == True).nonzero()
     print(indices)
 
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
