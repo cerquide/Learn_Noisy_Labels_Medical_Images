@@ -292,7 +292,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_HS)
             labels_all.append(y_SG)
 
-            name = names
+            names = name
 
             # Calculate the Loss 
             output, output_cms = model(X)
