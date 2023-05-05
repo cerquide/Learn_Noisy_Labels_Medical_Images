@@ -172,7 +172,7 @@ def noisy_loss(pred, cms, labels, names):
 
             cm_simple = cm_simple.view(a1, a2 * a3, a4).view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
             focus_pred[i] = focus_pred[i].permute(2, 1, 0)
-            print(a1, a2, a3, a4)
+
             print(cm_simple.size())
             print(focus_pred[i].size())
             pred_noisy = torch.bmm(cm_simple.to('cuda'), focus_pred[i].to('cuda'))
@@ -182,8 +182,11 @@ def noisy_loss(pred, cms, labels, names):
 
             print(pred_noisy_mask.size())
             print(label[i].size())
-            return 0 
-            loss_current = dice_loss2(pred_noisy_mask, label[0])
+
+            loss_current = dice_loss2(pred_noisy_mask, label[i])
+            print(loss_current)
+
+            return 0
 
     # clear, dirty = clear_pred(pred_norm)
 
