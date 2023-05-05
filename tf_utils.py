@@ -118,7 +118,7 @@ def noisy_loss(pred, cms, labels, names):
             index = torch.where(indices[i] == j)[0]
             if len(index) > 0:
                 print(j)
-                new_tensor[0, position] = pred_flat[j, 0]
+                new_tensor[0, position] = pred_flat[i, j]
                 position += 1
         
         print(new_tensor)
