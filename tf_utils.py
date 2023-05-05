@@ -121,11 +121,23 @@ def noisy_loss(pred, cms, labels, names):
                 # print(j)
                 new_tensor[0, position] = pred_flat[i, j]
                 position += 1
-                
+
         focus_pred.append(new_tensor)
-        print(len(focus_pred))
-        print(focus_pred[i].size())
-        print(focus_pred[i])
+        # print(len(focus_pred))
+        # print(focus_pred[i].size())
+        # print(focus_pred[i])
+
+    mask_prob = pred_flat
+    back_prob = 1 - pred_flat
+
+    pred_flat = torch.cat([mask_prob, back_prob], dim = 1)
+    print(pred_flat.size())
+
+    # for cm, label in zip(cms, labels):
+
+    #     cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
+
+    #     pred_noisy = torch.bmm(cm, pred_norm)
         
 
     # clear, dirty = clear_pred(pred_norm)
