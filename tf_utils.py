@@ -101,7 +101,10 @@ def noisy_loss(pred, cms, labels, names):
     b, c, h, w = pred_norm.size()
     pred_flat = pred_norm.view(b, c * h * w)
     print(pred_flat.size())
-
+    labels_flat_list = []
+    for labels_list in labels:
+        print(len(labels_list))
+    return 0
     threshold = 0.05
     indices = []
     focus_pred = []
@@ -111,6 +114,7 @@ def noisy_loss(pred, cms, labels, names):
         indices.append(torch.nonzero(mask))
         # print(indices[i].size())
         new_tensor = torch.zeros(1, indices[i].size(0))
+        new_label = torch.zeros(1, indices[i].size(0))
         # print(new_tensor.size())
         # print(new_tensor)
 
@@ -120,24 +124,23 @@ def noisy_loss(pred, cms, labels, names):
             if len(index) > 0:
                 # print(j)
                 new_tensor[0, position] = pred_flat[i, j]
+                new_label[0, position] = labels_flat[i, j]
                 position += 1
 
         mask_prob = new_tensor.unsqueeze(1)
         back_prob = (1 - new_tensor).unsqueeze(1)
         new_tensor = torch.cat([mask_prob, back_prob], dim = 1)
         focus_pred.append(new_tensor)
-        # print(len(focus_pred))
-        # print(focus_pred[i].size())
-        # print(focus_pred[i])
+        
 
     print(len(focus_pred))
     print(focus_pred[0].size())
 
-    # for cm, label in zip(cms, labels):
+    for cm, label in zip(cms, labels):
 
-    #     cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
+        cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
 
-    #     pred_noisy = torch.bmm(cm, pred_norm)
+        pred_noisy = torch.bmm(cm, pred_norm)
         
 
     # clear, dirty = clear_pred(pred_norm)
