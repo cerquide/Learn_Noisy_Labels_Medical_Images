@@ -107,22 +107,29 @@ def noisy_loss(pred, cms, labels, names):
         for label in labels_list:
             label_flat = label.view(1, h * w)
             labels_part.append(label_flat)
-        labels_flat_list.append(labels_part)
+        labels_tensor = torch.cat(labels_part, dim = 0)
+        labels_flat_list.append(labels_tensor)
         labels_part = []
     print(len(labels_flat_list))
     print(len(labels_flat_list[0]))
     print(labels_flat_list[0][0].size())
-    return 0
+
     threshold = 0.05
     indices = []
     focus_pred = []
+    focus_labels = []
+    focus_labels1 = []
+    focus_labels2 = []
+    focus_labels3 = []
     for i in range(b):
 
         mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
         indices.append(torch.nonzero(mask))
         # print(indices[i].size())
         new_tensor = torch.zeros(1, indices[i].size(0))
-        new_label = torch.zeros(1, indices[i].size(0))
+        new_label1 = torch.zeros(1, indices[i].size(0))
+        new_label2 = torch.zeros(1, indices[i].size(0))
+        new_label3 = torch.zeros(1, indices[i].size(0))
         # print(new_tensor.size())
         # print(new_tensor)
 
@@ -132,18 +139,26 @@ def noisy_loss(pred, cms, labels, names):
             if len(index) > 0:
                 # print(j)
                 new_tensor[0, position] = pred_flat[i, j]
-                new_label[0, position] = labels_flat[i, j]
+                new_label1[0, position] = labels_flat_list[0, i, j]
+                new_label2[0, position] = labels_flat_list[1, i, j]
+                new_label3[0, position] = labels_flat_list[2, i, j]
                 position += 1
 
         mask_prob = new_tensor.unsqueeze(1)
         back_prob = (1 - new_tensor).unsqueeze(1)
         new_tensor = torch.cat([mask_prob, back_prob], dim = 1)
         focus_pred.append(new_tensor)
-        
+        focus_labels1.append(new_label1)
+        focus_labels2.append(new_label2)
+        focus_labels3.append(new_label3)
+    focus_labels.append(focus_labels1)
+    focus_labels.append(focus_labels2)
+    focus_labels.append(focus_labels3)
 
-    print(len(focus_pred))
-    print(focus_pred[0].size())
-
+    print(len(focus_labels))
+    print(len(focus_labels1))
+    print(focus_labels1[0].size())
+    return 0
     for cm, label in zip(cms, labels):
 
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
