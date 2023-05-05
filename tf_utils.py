@@ -120,9 +120,9 @@ def noisy_loss(pred, cms, labels, names):
             if len(index) > 0:
                 # print(j)
                 new_tensor[0, position] = pred_flat[i, j]
-                focus_pred.append(new_tensor)
                 position += 1
-        
+                
+        focus_pred.append(new_tensor)
         print(len(focus_pred))
         print(focus_pred[i].size())
         print(focus_pred[i])
