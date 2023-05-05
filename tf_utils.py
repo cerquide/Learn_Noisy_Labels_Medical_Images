@@ -155,25 +155,32 @@ def noisy_loss(pred, cms, labels, names):
     focus_labels.append(focus_labels2)
     focus_labels.append(focus_labels3)
 
-    print(len(focus_labels))
-    print(len(focus_labels1))
-    print(focus_labels1[0].size())
-    print(focus_pred[0].size())
+    # print(len(focus_labels))
+    # print(len(focus_labels1))
+    # print(focus_labels1[0].size())
+    # print(focus_pred[0].size())
 
-    for cm, label in zip(cms, labels):
+    enum = 0
+    for cm, label in zip(cms, focus_labels):
 
         for i in range(len(focus_pred)):
         
             cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2))
             print(cm_simple.size())
-            return 0
-        for i in range(focus_pred.size(0)):
+            
+            a1, a2, a3, a4 = cm_simple.size()
 
-            cm = cm.view
-        cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
+            cm_simple = cm_simple.view(a1, a2 * a3, a4).permute(0, 2, 1).contiguous().view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
 
-        pred_noisy = torch.bmm(cm, pred_norm)
-        
+            pred_noisy = torch.bmm(cm_simple, focus_pred[i])
+
+            pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
+            pred_noisy_mask = pred_noisy[:, 0, :]
+
+            print(pred_noisy_mask.size())
+            print(label[i].size())
+            return 0 
+            loss_current = dice_loss2(pred_noisy_mask, label[0])
 
     # clear, dirty = clear_pred(pred_norm)
 
