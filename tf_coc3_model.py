@@ -42,8 +42,8 @@ DEVICE = 'cuda'
 ALPHA = 0.0
 learning_rate = 1e-3
 batch_size = 16
-val_split = 0.1
-test_split = 0.1
+val_split = 0.05
+test_split = 0.05
 epochs = 10
 patience = 500
 
@@ -228,6 +228,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 labels_all.append(y_HS)
                 labels_all.append(y_SG)
 
+                names = name
+
                 if GCM == False:
                     cm_all_true = []
                     cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
@@ -289,6 +291,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_AR)
             labels_all.append(y_HS)
             labels_all.append(y_SG)
+
+            name = names
 
             # Calculate the Loss 
             output, output_cms = model(X)

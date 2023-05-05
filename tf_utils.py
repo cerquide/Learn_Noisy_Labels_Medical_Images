@@ -101,11 +101,11 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
     enum = 0
-    print("labels lists: ", len(labels))
-    print("cms lists: ", len(cms))
-    print("cms AR : ", cms[0].size())
-    print("cms HS : ", cms[1].size())
-    print("cms SG : ", cms[2].size())
+    # print("labels lists: ", len(labels))
+    # print("cms lists: ", len(cms))
+    # print("cms AR : ", cms[0].size())
+    # print("cms HS : ", cms[1].size())
+    # print("cms SG : ", cms[2].size())
 
     for cm, label_noisy in zip(cms, labels):
         # print("cm size: ", cm.size())
@@ -128,7 +128,7 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
         
-        # save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, names)
+        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, names)
 
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         # pred_noisy = pred_noisy_mask
