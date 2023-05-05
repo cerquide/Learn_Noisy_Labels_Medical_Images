@@ -64,6 +64,45 @@ def save_borders(boolean, tensor, annotator = 1, names = []):
         plt.savefig(f'./tf_coc3/wtTL/borders/border_{names[i]}_annotator_{annotator}.png')
         plt.clf()
 
+def clear_cms(tensor, label, threshold = 1e-3):
+
+    x = tensor
+    y = label
+
+    indices = (x >= threshold).nonzero()
+
+    cleared_tensor = x[indices].squeeze()
+    cleared_label = y[indices].squeeze()
+
+def clear_pred(pred, increment = 0.05):
+
+    # Boolean #
+    increment = 0.05
+    clear_tensor = torch.logical_or(pred >= (1 - increment), pred <= increment)
+    dirty_tensor = torch.logical_and(pred < (1 - increment), pred > increment)
+
+    # Count number of True and False values
+    num_true_c = clear_tensor.sum().item()
+    num_false_c = (clear_tensor.numel() - num_true_c)
+    num_true_u = dirty_tensor.sum().item()
+    num_false_u = (dirty_tensor.numel() - num_true_u)
+
+    # prints
+    
+    return clear_tensor, dirty_tensor
+
+def noisy_loss(pred, cms, labels, names):
+
+    main_loss = 0.0
+
+    pred_norm = torch.sigmoid()
+    pred_init = pred_norm
+
+    clear, dirty = clear_pred(pred_norm)
+
+    indices = (dirty == True)
+    print(indices)
+
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
     main_loss = 0.0
@@ -73,24 +112,9 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
     pred_norm = torch.sigmoid(pred)
     save_histogram(pred_norm)
     pred_init = pred_norm
-    # Boolean #
-    increment = 0.05
-    clear_tensor = torch.logical_or(pred_norm >= (1 - increment), pred_norm <= increment)
-    unclear_tensor = torch.logical_and(pred_norm < (1 - increment), pred_norm > increment)
+    
+    clear_tensor, unclear_tensor = clear_pred(pred_norm)
 
-    # Count number of True and False values
-    num_true_c = clear_tensor.sum().item()
-    num_false_c = (clear_tensor.numel() - num_true_c)
-    num_true_u = unclear_tensor.sum().item()
-    num_false_u = (unclear_tensor.numel() - num_true_u)
-
-    # Print results
-    # print(f"Number of True values Clear: {num_true_c}")
-    # print(f"Number of False values Clear: {num_false_c}")
-    # print(f"Number of True values Unclear: {num_true_u}")
-    # print(f"Number of False values Unclear: {num_false_u}")
-
-    # return 0, 0, 0
     # print("Pred norm:",pred_norm)
     mask_prob = pred_norm
     back_prob = 1 - pred_norm
@@ -101,11 +125,6 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
     enum = 0
-    # print("labels lists: ", len(labels))
-    # print("cms lists: ", len(cms))
-    # print("cms AR : ", cms[0].size())
-    # print("cms HS : ", cms[1].size())
-    # print("cms SG : ", cms[2].size())
 
     for cm, label_noisy in zip(cms, labels):
         # print("cm size: ", cm.size())
