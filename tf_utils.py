@@ -102,7 +102,7 @@ def noisy_loss(pred, cms, labels, names):
 
     b, c, h, w = pred_norm.size()
     pred_flat = pred_norm.view(b, c * h * w)
-    print(pred_flat.size())
+    # print(pred_flat.size())
     labels_flat_list = []
     labels_part = []
     for labels_list in labels:
@@ -112,9 +112,9 @@ def noisy_loss(pred, cms, labels, names):
         labels_tensor = torch.cat(labels_part, dim = 0)
         labels_flat_list.append(labels_tensor)
         labels_part = []
-    print(len(labels_flat_list))
-    print(len(labels_flat_list[0]))
-    print(labels_flat_list[0][0].size())
+    # print(len(labels_flat_list))
+    # print(len(labels_flat_list[0]))
+    # print(labels_flat_list[0][0].size())
 
     threshold = 0.05
     indices = []
@@ -168,26 +168,26 @@ def noisy_loss(pred, cms, labels, names):
         enum += 1
         print("annotator ", enum)
         batch_loss = 0
-        print(len(focus_pred)) 
+        # print(len(focus_pred)) 
         for i in range(len(focus_pred)):
             print(i)
             cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2)).to('cuda')
-            print(cm_simple.size())
+            # print(cm_simple.size())
             
             a1, a2, a3, a4 = cm_simple.size()
 
             cm_simple = cm_simple.view(a1, a2 * a3, a4).view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
             focus_pred_ = focus_pred[i].permute(2, 1, 0)
 
-            print(cm_simple.size())
-            print(focus_pred_.size())
+            # print(cm_simple.size())
+            # print(focus_pred_.size())
             pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_.to(DEVICE))
 
             pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
             pred_noisy_mask = pred_noisy[:, 0, :]
 
-            print(pred_noisy_mask.size())
-            print(label[i].size())
+            # print(pred_noisy_mask.size())
+            # print(label[i].size())
 
             loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
             print(loss_current.item())
@@ -196,7 +196,8 @@ def noisy_loss(pred, cms, labels, names):
         batch_loss = batch_loss / (i + 1)
         total_loss += batch_loss
 
-        print(total_loss)
+        print("Annotator", enum)
+        print("Loss: ", total_loss.item())
 
     # clear, dirty = clear_pred(pred_norm)
 
