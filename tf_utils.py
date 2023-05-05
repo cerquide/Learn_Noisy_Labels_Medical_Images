@@ -95,7 +95,7 @@ def noisy_loss(pred, cms, labels, names):
 
     main_loss = 0.0
 
-    pred_norm = torch.sigmoid()
+    pred_norm = torch.sigmoid(pred)
     pred_init = pred_norm
 
     clear, dirty = clear_pred(pred_norm)
