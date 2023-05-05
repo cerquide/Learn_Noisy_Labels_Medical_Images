@@ -165,7 +165,7 @@ def noisy_loss(pred, cms, labels, names):
 
         for i in range(len(focus_pred)):
         
-            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2))
+            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2)).to('cuda')
             print(cm_simple.size())
             
             a1, a2, a3, a4 = cm_simple.size()
