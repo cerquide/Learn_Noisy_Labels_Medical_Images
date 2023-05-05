@@ -42,8 +42,8 @@ DEVICE = 'cuda'
 ALPHA = 0.0
 learning_rate = 1e-3
 batch_size = 16
-val_split = 0.05
-test_split = 0.05
+val_split = 0.1
+test_split = 0.1
 epochs = 10
 patience = 500
 

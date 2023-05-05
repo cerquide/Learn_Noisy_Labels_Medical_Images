@@ -86,7 +86,7 @@ class gcm_layers(nn.Module):
         return y
     
 class GCM_UNet(nn.Module):
-    def __init__(self, img_width, img_height, img_channels):
+    def __init__(self, img_width, img_height, img_channels, batch_size = 16):
         super(GCM_UNet, self).__init__()
 
         def conv_block(in_channels, out_channels, dropout = 0.0):
@@ -102,6 +102,8 @@ class GCM_UNet(nn.Module):
             return nn.Sequential(
                 nn.ConvTranspose2d(in_channels, out_channels, 2, stride = 2)
             )
+        
+        self.batch_size = batch_size
 
         self.enc1 = conv_block(img_channels, 16, dropout = 0.1)
         self.enc2 = conv_block(16, 32, dropout = 0.1)
@@ -124,7 +126,7 @@ class GCM_UNet(nn.Module):
         for i in range(3):
             self.cms_output.append(gcm_layers(img_width, img_height))
 
-        self.output = nn.Conv2d(16, 1, kernel_size = 1, bias = True)
+        self.output = nn.Conv2d(self.batch_size, 1, kernel_size = 1, bias = True)
 
     def forward(self, x):
 
