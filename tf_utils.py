@@ -98,10 +98,15 @@ def noisy_loss(pred, cms, labels, names):
     pred_norm = torch.sigmoid(pred)
     pred_init = pred_norm
 
-    clear, dirty = clear_pred(pred_norm)
+    b, c, h, w = pred_norm.size()
+    pred_flat = pred_norm.view(b, c * h * w)
 
-    indices = (dirty == True).nonzero()
-    print(indices)
+    print(pred_flat.size())
+
+    # clear, dirty = clear_pred(pred_norm)
+
+    # indices = (dirty == True).nonzero()
+    # print(indices)
 
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
