@@ -177,11 +177,11 @@ def noisy_loss(pred, cms, labels, names):
             a1, a2, a3, a4 = cm_simple.size()
 
             cm_simple = cm_simple.view(a1, a2 * a3, a4).view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
-            focus_pred[i] = focus_pred[i].permute(2, 1, 0)
+            focus_pred_ = focus_pred[i].permute(2, 1, 0)
 
             print(cm_simple.size())
-            print(focus_pred[i].size())
-            pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred[i].to(DEVICE))
+            print(focus_pred_.size())
+            pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_.to(DEVICE))
 
             pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
             pred_noisy_mask = pred_noisy[:, 0, :]
