@@ -105,8 +105,13 @@ def noisy_loss(pred, cms, labels, names):
     labels_part = []
     for labels_list in labels:
         for label in labels_list:
-            
-            print(label.size())
+            label_flat = label.view(1, h * w)
+            labels_part.append(label_flat)
+        labels_flat_list.append(labels_part)
+        labels_part = []
+    print(len(labels_flat_list))
+    print(len(labels_flat_list[0]))
+    print(labels_flat_list[0][0].size())
     return 0
     threshold = 0.05
     indices = []
