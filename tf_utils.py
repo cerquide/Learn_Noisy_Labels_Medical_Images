@@ -106,10 +106,10 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
     print("cms AR : ", cms[0].size())
     print("cms AR : ", cms[1].size())
     print("cms AR : ", cms[2].size())
-    return 0.5, 0.5, 0.5
+
     for cm, label_noisy in zip(cms, labels):
-        print("cm size: ", cm.size())
-        print("labels len: ", len(label_noisy))
+        # print("cm size: ", cm.size())
+        # print("labels len: ", len(label_noisy))
         enum += 1
 
         #print("CM :", cm[0, :, :, 0, 0])
