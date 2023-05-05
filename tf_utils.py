@@ -139,8 +139,8 @@ def noisy_loss(pred, cms, labels, names):
             if len(index) > 0:
                 # print(j)
                 new_tensor[0, position] = pred_flat[i, j]
-                new_label1[0, position] = labels_flat_list[0, i, j]
-                new_label2[0, position] = labels_flat_list[1, i, j]
+                new_label1[0, position] = labels_flat_list[0][i, j]
+                new_label2[0, position] = labels_flat_list[0][i, j]
                 new_label3[0, position] = labels_flat_list[2, i, j]
                 position += 1
 
