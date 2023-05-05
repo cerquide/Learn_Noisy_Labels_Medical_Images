@@ -109,7 +109,8 @@ def noisy_loss(pred, cms, labels, names):
         indices.append(torch.nonzero(mask))
 
     print(len(indices))
-    print(indices[0].size())
+    print(indices[0])
+    print(indices[1])
 
     # clear, dirty = clear_pred(pred_norm)
 
