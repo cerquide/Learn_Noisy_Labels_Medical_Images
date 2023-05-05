@@ -131,7 +131,7 @@ def noisy_loss(pred, cms, labels, names):
         # print(focus_pred[i])
 
     print(len(focus_pred))
-    print(pred_flat[0].size())
+    print(focus_pred[0].size())
 
     # for cm, label in zip(cms, labels):
 
