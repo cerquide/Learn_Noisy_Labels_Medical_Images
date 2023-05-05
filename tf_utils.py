@@ -101,7 +101,7 @@ def noisy_loss(pred, cms, labels, names):
     b, c, h, w = pred_norm.size()
     pred_flat = pred_norm.view(b, c * h * w)
 
-    threshold = 0.2
+    threshold = 0.05
     indices = []
     for i in range(b):
 
