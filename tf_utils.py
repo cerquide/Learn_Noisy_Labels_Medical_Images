@@ -165,10 +165,12 @@ def noisy_loss(pred, cms, labels, names):
     enum = 0
     total_loss = 0
     for cm, label in zip(cms, focus_labels):
-
-        batch_loss = 0 
+        enum += 1
+        print("annotator ", enum)
+        batch_loss = 0
+        print(len(focus_pred)) 
         for i in range(len(focus_pred)):
-        
+            print(i)
             cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2)).to('cuda')
             print(cm_simple.size())
             
@@ -195,7 +197,7 @@ def noisy_loss(pred, cms, labels, names):
         total_loss += batch_loss
 
         print(total_loss)
-        
+
     # clear, dirty = clear_pred(pred_norm)
 
     # indices = (dirty == True).nonzero()
