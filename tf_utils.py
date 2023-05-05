@@ -101,8 +101,11 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
     pred_norm = pred_norm.view(b, c, h*w).permute(0, 2, 1).contiguous().view(b*h*w, c, 1)
 
     enum = 0
+    print("labels lists: ", len(labels))
+    print("cms lists: ", len(cms))
     for cm, label_noisy in zip(cms, labels):
-
+        print("cm size: ", cm.size())
+        print("labels len: ", len(label_noisy))
         enum += 1
 
         #print("CM :", cm[0, :, :, 0, 0])
