@@ -158,9 +158,13 @@ def noisy_loss(pred, cms, labels, names):
     print(len(focus_labels))
     print(len(focus_labels1))
     print(focus_labels1[0].size())
-    return 0
-    for cm, label in zip(cms, labels):
 
+    for cm, label in zip(cms, labels):
+        print(cm.size())
+        return 0
+        for i in range(focus_pred.size(0)):
+
+            cm = cm.view
         cm = cm.view(b, c ** 2, h * w).permute(0, 2, 1).contiguous().view(b * h * w, c * c).view(b * h * w, c, c)
 
         pred_noisy = torch.bmm(cm, pred_norm)
