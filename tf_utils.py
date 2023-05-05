@@ -127,8 +127,8 @@ def noisy_loss(pred, cms, labels, names):
         # print(focus_pred[i].size())
         # print(focus_pred[i])
 
-    mask_prob = pred_flat
-    back_prob = 1 - pred_flat
+    mask_prob = pred_flat.unsqueeze(1)
+    back_prob = (1 - pred_flat).unsqueeze(1)
 
     pred_flat = torch.cat([mask_prob, back_prob], dim = 1)
     print(pred_flat.size())
