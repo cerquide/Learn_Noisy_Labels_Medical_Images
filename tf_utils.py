@@ -122,16 +122,16 @@ def noisy_loss(pred, cms, labels, names):
                 new_tensor[0, position] = pred_flat[i, j]
                 position += 1
 
+        mask_prob = new_tensor.unsqueeze(1)
+        back_prob = (1 - new_tensor).unsqueeze(1)
+        new_tensor = torch.cat([mask_prob, back_prob], dim = 1)
         focus_pred.append(new_tensor)
         # print(len(focus_pred))
         # print(focus_pred[i].size())
         # print(focus_pred[i])
 
-    mask_prob = pred_flat.unsqueeze(1)
-    back_prob = (1 - pred_flat).unsqueeze(1)
-
-    pred_flat = torch.cat([mask_prob, back_prob], dim = 1)
-    print(pred_flat.size())
+    print(len(focus_pred))
+    print(pred_flat[0].size())
 
     # for cm, label in zip(cms, labels):
 
