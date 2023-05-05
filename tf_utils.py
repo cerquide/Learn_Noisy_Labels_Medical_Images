@@ -164,7 +164,7 @@ def noisy_loss(pred, cms, labels, names):
 
         for i in range(len(focus_pred)):
         
-            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(1))
+            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred[i].size(2))
             print(cm_simple.size())
             return 0
         for i in range(focus_pred.size(0)):
