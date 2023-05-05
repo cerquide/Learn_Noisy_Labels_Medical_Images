@@ -166,9 +166,7 @@ def noisy_loss(pred, cms, labels, names):
     total_loss = 0
     total_loss3 = 0
     annotators_loss = []
-    print(len(cms))
-    print(cms[0].size())
-    return 0
+    
     for cm, label in zip(cms, focus_labels):
         enum += 1
 
@@ -200,10 +198,12 @@ def noisy_loss(pred, cms, labels, names):
         batch_loss = batch_loss / (i + 1)
         total_loss += batch_loss
         total_loss3 += total_loss
-        print("Annotator", enum)
-        print("Loss: ", total_loss.item())
-    print("Annotator 1:", cms[0])
-    print("Total Loss: ", total_loss3.item())
+        # print("Annotator", enum)
+        # print("Loss: ", total_loss.item())
+    print("Annotator 1:", cms[0][0, :, :, 0, 0])
+    print("Annotator 2:", cms[1][0, :, :, 0, 0])
+    print("Annotator 3:", cms[2][0, :, :, 0, 0])
+    # print("Total Loss: ", total_loss3.item())
 
     return total_loss3, total_loss3, total_loss3 * 0
 
