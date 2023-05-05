@@ -100,7 +100,7 @@ def noisy_loss(pred, cms, labels, names):
 
     b, c, h, w = pred_norm.size()
     pred_flat = pred_norm.view(b, c * h * w)
-    print(pred_flat.size(-1))
+    print(pred_flat.size())
 
     threshold = 0.05
     indices = []
@@ -112,6 +112,15 @@ def noisy_loss(pred, cms, labels, names):
         new_tensor = torch.zeros(1, indices[i].size(0))
         print(new_tensor.size())
         print(new_tensor)
+
+        for j in range(pred_flat[i].size(-1)):
+            index = torch.where(indices[i] == j)[0]
+            if len(index) > 0:
+                print(j)
+                new_tensor[j] = pred_flat[i, j]
+        
+        print(new_tensor)
+
         break
         print(indices[i].size())
         print(indices[i])
