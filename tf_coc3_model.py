@@ -170,8 +170,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             #print_matrices(model)
 
             output, output_cms = model(X)
-            noisy_loss(output, output_cms, labels_all, names)
-            return 0
+            
             #print("After model call")
             #print_matrices(model)
 
