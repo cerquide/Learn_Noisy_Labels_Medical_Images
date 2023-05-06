@@ -171,10 +171,13 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             output, output_cms = model(X)
             
-            print(f'Annotator 1: {output_cms[0][0, :, :, 0, 0]:.4f}')
-            print(f'Annotator 2: {output_cms[0][0, :, :, 0, 0]:.4f}')
-            print(f'Annotator 3: {output_cms[0][0, :, :, 0, 0]:.4f}')
-            
+            rounded_tensor = torch.round(output_cms[0][0, :, :, 0, 0] * 10000) / 10000
+            print(f'Annotator 1: {rounded_tensor}')
+            rounded_tensor = torch.round(output_cms[1][0, :, :, 0, 0] * 10000) / 10000
+            print(f'Annotator 2: {rounded_tensor}')
+            rounded_tensor = torch.round(output_cms[2][0, :, :, 0, 0] * 10000) / 10000
+            print(f'Annotator 3: {rounded_tensor}')
+
             #print("After model call")
             #print_matrices(model)
 
