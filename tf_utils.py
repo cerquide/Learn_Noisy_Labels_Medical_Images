@@ -246,7 +246,7 @@ def noisy_loss2(pred, cms, labels, names):
     
     print("Len focus_pred: ", len(focus_pred))
     print("Len focus_labels: ", len(focus_labels))
-    print("Size focus_labels[0]: ", focus_labels[0].size())
+    print("Size focus_labels[0]: ", focus_labels[0][0].size())
     print("focus_labels[0][0]", focus_labels[0][0])
     
     return 0, 0, 0
