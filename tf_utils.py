@@ -223,7 +223,9 @@ def noisy_loss2(pred, cms, labels, names):
     print("Pred_norm size: ", pred_norm.size())
     print("Len labels_flat: ", len(labels_flat_list))
     print("Size labels_flat[0]: ", labels_flat_list[0].size())
-    print("labels_flat[0]", labels_flat_list[0])
+    print("labels_flat[0][0]", labels_flat_list[0][0])
+    print("Zero count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)))
+    print("One count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1)))
     
     return 0, 0, 0
     threshold = 0.05
