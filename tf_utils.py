@@ -214,11 +214,10 @@ def noisy_loss2(pred, cms, labels, names):
 
     b, c, h, w = pred_norm.size()
     pred_flat = pred_norm.view(b, c * h * w)
-    
+
     labels_flat_list = []
     for labels_list in labels:
-        print(labels_list[0].size())
-        labels_tensor = torch.cat(labels_list, dim = 0)
+        labels_tensor = torch.cat([label.view(1, h * w) for label in labels_list], dim=0)
         labels_flat_list.append(labels_tensor)
     
     threshold = 0.05
