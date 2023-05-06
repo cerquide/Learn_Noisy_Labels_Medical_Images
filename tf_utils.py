@@ -207,6 +207,57 @@ def noisy_loss(pred, cms, labels, names):
 
     return total_loss3, total_loss3, total_loss3 * 0
 
+def noisy_loss2(pred, cms, labels, names):
+
+    total_loss = 0.0
+    pred_norm = torch.sigmoid(pred)
+
+    b, c, h, w = pred_norm.size()
+    pred_flat = pred_norm.view(b, c * h * w)
+    
+    labels_flat_list = []
+    for labels_list in labels:
+        labels_tensor = torch.cat(labels_list, dim = 0)
+        labels_flat_list.append(labels_tensor)
+    
+    threshold = 0.05
+    focus_pred = []
+    focus_labels = []
+    
+    for i in range(b):
+        mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
+        indices = torch.nonzero(mask)
+        
+        new_tensor = pred_flat[i, indices[:, 0]]
+        new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
+        
+        mask_prob = new_tensor.unsqueeze(1)
+        back_prob = (1 - new_tensor).unsqueeze(1)
+        new_tensor = torch.cat([mask_prob, back_prob], dim=1)
+        focus_pred.append(new_tensor)
+        focus_labels.append(new_labels)
+
+    enum = 0
+    for cm, label in zip(cms, focus_labels):
+        enum += 1
+        batch_loss = 0
+        
+        for i, focus_pred_i in enumerate(focus_pred):
+            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred_i.size(2)).to('cuda')
+            a1, a2, a3, a4 = cm_simple.size()
+            cm_simple = cm_simple.view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
+            pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_i.permute(2, 1, 0).to(DEVICE))
+            pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
+            pred_noisy_mask = pred_noisy[:, 0, :]
+            
+            loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
+            batch_loss += loss_current
+        
+        batch_loss /= len(focus_pred)
+        total_loss += batch_loss
+    
+    return total_loss, total_loss, total_loss * 0
+
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
     main_loss = 0.0
