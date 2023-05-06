@@ -170,13 +170,6 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             #print_matrices(model)
 
             output, output_cms = model(X)
-            
-            rounded_tensor = torch.round(output_cms[0][0, :, :, 0, 0] * 10000) / 10000
-            print(f'Annotator 1: {rounded_tensor}')
-            rounded_tensor = torch.round(output_cms[1][0, :, :, 0, 0] * 10000) / 10000
-            print(f'Annotator 2: {rounded_tensor}')
-            rounded_tensor = torch.round(output_cms[2][0, :, :, 0, 0] * 10000) / 10000
-            print(f'Annotator 3: {rounded_tensor}')
 
             #print("After model call")
             #print_matrices(model)
@@ -276,6 +269,17 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         val_dice_values.append(val_dice)
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
+        
+        numpy_array = output_cms[0][0, :, :, 0, 0].cpu().numpy()
+        formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
+        print(f'Annotator 1: {formatted_array}')
+        numpy_array = output_cms[1][0, :, :, 0, 0].cpu().numpy()
+        formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
+        print(f'Annotator 2: {formatted_array}')
+        numpy_array = output_cms[2][0, :, :, 0, 0].cpu().numpy()
+        formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
+        print(f'Annotator 3: {formatted_array}')
+
         # print_matrices(model)
         scheduler.step()
 
