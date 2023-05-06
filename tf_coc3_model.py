@@ -170,6 +170,10 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             #print_matrices(model)
 
             output, output_cms = model(X)
+
+            print("Annotator 1:", output_cms[0][0, :, :, 0, 0].set_printoptions(precision=4))
+            print("Annotator 2:", output_cms[1][0, :, :, 0, 0].set_printoptions(precision=4))
+            print("Annotator 3:", output_cms[2][0, :, :, 0, 0].set_printoptions(precision=4))
             
             #print("After model call")
             #print_matrices(model)

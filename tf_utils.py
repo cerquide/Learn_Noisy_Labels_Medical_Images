@@ -200,9 +200,9 @@ def noisy_loss(pred, cms, labels, names):
         total_loss3 += total_loss
         # print("Annotator", enum)
         # print("Loss: ", total_loss.item())
-    print("Annotator 1:", cms[0][0, :, :, 0, 0])
-    print("Annotator 2:", cms[1][0, :, :, 0, 0])
-    print("Annotator 3:", cms[2][0, :, :, 0, 0])
+    # print("Annotator 1:", cms[0][0, :, :, 0, 0])
+    # print("Annotator 2:", cms[1][0, :, :, 0, 0])
+    # print("Annotator 3:", cms[2][0, :, :, 0, 0])
     # print("Total Loss: ", total_loss3.item())
 
     return total_loss3, total_loss3, total_loss3 * 0
