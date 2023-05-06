@@ -17,7 +17,7 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
-from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, noisy_loss
+from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, noisy_loss, noisy_loss2
 from tf_utils import plot_performance
 from tf_utils import test_lGM
 from tf_utils import calculate_cm, evaluate_cm
@@ -176,7 +176,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
-            loss, loss_dice, loss_trace = noisy_loss(output, output_cms, labels_all, names)
+            loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
             
             # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
 
@@ -244,7 +244,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
-                loss, loss_dice, loss_trace = noisy_loss(output, output_cms, labels_all, names)
+                loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
                 # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
                 val_loss += loss.item()
                 val_loss_dice += loss_dice.item()
@@ -270,15 +270,15 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
         print(f'Epoch: {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Train Loss Dice: {train_loss_dice:.4f}, Train Dice: {train_dice:.4f}, Val Loss: {val_loss:.4f}, Val Dice: {val_dice:.4f}')
         
-        numpy_array = output_cms[0][0, :, :, 0, 0].cpu().numpy()
-        formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
-        print(f'Annotator 1: {formatted_array}')
-        numpy_array = output_cms[1][0, :, :, 0, 0].cpu().numpy()
-        formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
-        print(f'Annotator 2: {formatted_array}')
-        numpy_array = output_cms[2][0, :, :, 0, 0].cpu().numpy()
-        formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
-        print(f'Annotator 3: {formatted_array}')
+        # numpy_array = output_cms[0][0, :, :, 0, 0].cpu().numpy()
+        # formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
+        # print(f'Annotator 1: {formatted_array}')
+        # numpy_array = output_cms[1][0, :, :, 0, 0].cpu().numpy()
+        # formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
+        # print(f'Annotator 2: {formatted_array}')
+        # numpy_array = output_cms[2][0, :, :, 0, 0].cpu().numpy()
+        # formatted_array = np.array2string(numpy_array, precision=4, separator=', ')
+        # print(f'Annotator 3: {formatted_array}')
 
         # print_matrices(model)
         scheduler.step()
@@ -310,7 +310,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss 
             output, output_cms = model(X)
             # loss = criterion(output, y)
-            loss, loss_dice, loss_trace = noisy_loss(output, output_cms, labels_all, names)
+            loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
             # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
             val_loss += loss.item()
             val_loss_dice += loss_dice.item()
