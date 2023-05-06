@@ -219,7 +219,13 @@ def noisy_loss2(pred, cms, labels, names):
     for labels_list in labels:
         labels_tensor = torch.cat([label.view(1, h * w) for label in labels_list], dim=0)
         labels_flat_list.append(labels_tensor)
+
+    print("Pred_norm size: ", pred_norm.size())
+    print("Len labels_flat: ", len(labels_flat_list))
+    print("Size labels_flat[0]: ", labels_flat_list[0].size())
+    print("labels_flat[0]", labels_flat_list[0])
     
+    return 0, 0, 0
     threshold = 0.05
     focus_pred = []
     focus_labels = []
@@ -237,24 +243,24 @@ def noisy_loss2(pred, cms, labels, names):
         focus_pred.append(new_tensor)
         focus_labels.append(new_labels)
 
-    enum = 0
-    for cm, label in zip(cms, focus_labels):
-        enum += 1
-        batch_loss = 0
+    # enum = 0
+    # for cm, label in zip(cms, focus_labels):
+    #     enum += 1
+    #     batch_loss = 0
         
-        for i, focus_pred_i in enumerate(focus_pred):
-            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred_i.size(2)).to('cuda')
-            a1, a2, a3, a4 = cm_simple.size()
-            cm_simple = cm_simple.view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
-            pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_i.permute(2, 1, 0).to(DEVICE))
-            pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
-            pred_noisy_mask = pred_noisy[:, 0, :]
+    #     for i, focus_pred_i in enumerate(focus_pred):
+    #         cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred_i.size(2)).to('cuda')
+    #         a1, a2, a3, a4 = cm_simple.size()
+    #         cm_simple = cm_simple.view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
+    #         pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_i.permute(2, 1, 0).to(DEVICE))
+    #         pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
+    #         pred_noisy_mask = pred_noisy[:, 0, :]
             
-            loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
-            batch_loss += loss_current
+    #         loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
+    #         batch_loss += loss_current
         
-        batch_loss /= len(focus_pred)
-        total_loss += batch_loss
+    #     batch_loss /= len(focus_pred)
+    #     total_loss += batch_loss
     
     return total_loss, total_loss, total_loss * 0
 
