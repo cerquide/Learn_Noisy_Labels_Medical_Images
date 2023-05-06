@@ -171,9 +171,19 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             output, output_cms = model(X)
 
-            print("Annotator 1: {:.4f}".format(output_cms[0][0, :, :, 0, 0]))
-            print("Annotator 2: {:.4f}".format(output_cms[1][0, :, :, 0, 0]))
-            print("Annotator 3: {:.4f}".format(output_cms[2][0, :, :, 0, 0]))
+            tensor_value = output_cms[0][0, :, :, 0, 0].item()
+            formatted_value = "{:.4f}".format(tensor_value)
+            print("Annotator 2:", formatted_value)
+            tensor_value = output_cms[1][0, :, :, 0, 0].item()
+            formatted_value = "{:.4f}".format(tensor_value)
+            print("Annotator 2:", formatted_value)
+            tensor_value = output_cms[2][0, :, :, 0, 0].item()
+            formatted_value = "{:.4f}".format(tensor_value)
+            print("Annotator 3:", formatted_value)
+            
+            # print("Annotator 1: {:.4f}".format(output_cms[0][0, :, :, 0, 0]))
+            # print("Annotator 2: {:.4f}".format(output_cms[1][0, :, :, 0, 0]))
+            # print("Annotator 3: {:.4f}".format(output_cms[2][0, :, :, 0, 0]))
             
             #print("After model call")
             #print_matrices(model)
