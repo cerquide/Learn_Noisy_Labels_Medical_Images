@@ -217,7 +217,7 @@ def noisy_loss2(pred, cms, labels, names):
     
     labels_flat_list = []
     for labels_list in labels:
-        print(len(labels_list))
+        print(labels_list[0].size())
         labels_tensor = torch.cat(labels_list, dim = 0)
         labels_flat_list.append(labels_tensor)
     
