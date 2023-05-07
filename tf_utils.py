@@ -245,7 +245,7 @@ def noisy_loss2(pred, cms, labels, names):
 
         new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
         print("len new labels: ", len(new_labels))
-        print("type new_labels[0]", type(new_labels[0]))
+        print("size new_labels[0]", new_labels[0].size())
         return 0, 0, 0
         mask_prob = new_tensor.unsqueeze(1)
         back_prob = (1 - new_tensor).unsqueeze(1)
