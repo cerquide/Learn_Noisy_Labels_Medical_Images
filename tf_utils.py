@@ -93,6 +93,10 @@ def clear_pred(pred, increment = 0.05):
     
     return clear_tensor, dirty_tensor
 
+def round_to_01(tensor, threshold):
+    rounded_tensor = torch.where(tensor >= threshold, torch.ones_like(tensor), torch.zeros_like(tensor))
+    return rounded_tensor
+
 def noisy_loss(pred, cms, labels, names):
 
     main_loss = 0.0
@@ -246,8 +250,9 @@ def noisy_loss2(pred, cms, labels, names):
         new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
         print("len new labels: ", len(new_labels))
         print("new_labels[0]", new_labels[0])
-        print("new_labels[1]", new_labels[1])
-        print("new_labels[2]", new_labels[2])
+        print("new_labels[0]", round_to_01(new_labels[0], 0.5))
+        # print("new_labels[1]", new_labels[1])
+        # print("new_labels[2]", new_labels[2])
         return 0, 0, 0
         mask_prob = new_tensor.unsqueeze(1)
         back_prob = (1 - new_tensor).unsqueeze(1)
