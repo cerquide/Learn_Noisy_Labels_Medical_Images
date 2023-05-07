@@ -251,8 +251,10 @@ def noisy_loss2(pred, cms, labels, names):
         print("len new labels: ", len(new_labels))
         print("new_labels[0]", new_labels[0])
         print("new_labels[0]", round_to_01(new_labels[0], 0.5))
-        # print("new_labels[1]", new_labels[1])
-        # print("new_labels[2]", new_labels[2])
+        print("new_labels[1]", new_labels[1])
+        print("new_labels[1]", round_to_01(new_labels[1], 0.5))
+        print("new_labels[2]", new_labels[2])
+        print("new_labels[2]", round_to_01(new_labels[2], 0.5))
         return 0, 0, 0
         mask_prob = new_tensor.unsqueeze(1)
         back_prob = (1 - new_tensor).unsqueeze(1)
