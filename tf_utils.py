@@ -234,7 +234,7 @@ def noisy_loss2(pred, cms, labels, names):
     
     for i in range(b):
         mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
-        for j in range(pred_flat[i]):
+        for j in range(pred_flat[i]item()):
             if (pred_flat[i, j] > threshold) & (pred_flat[i, j] < (1 - threshold)):
                 print(pred_flat[i, j])
         return 0, 0, 0        
