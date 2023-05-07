@@ -231,8 +231,10 @@ def noisy_loss2(pred, cms, labels, names):
     print("labels_flat[0][0]: ", labels_flat_list[0][0])
     print("Zero count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)))
     print("One count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1)))
-    print("Non 0-1 count: ", labels_flat_list[0][0].size(0))
-        #    - torch.eq(labels_flat_list[0][0], 0) - torch.eq(labels_flat_list[0][0], 1))
+    print("Non 0-1 count: ", labels_flat_list[0][0].size(0)
+           - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)) 
+           - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1))
+           )
     
     threshold = 0.05
     focus_pred = []
