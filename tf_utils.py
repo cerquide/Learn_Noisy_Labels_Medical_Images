@@ -233,6 +233,9 @@ def noisy_loss2(pred, cms, labels, names):
     
     for i in range(b):
         mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
+        if (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold)):
+            print(pred[i])
+        return 0
         indices = torch.nonzero(mask)
         
         new_tensor = pred_flat[i, indices[:, 0]]
@@ -244,12 +247,12 @@ def noisy_loss2(pred, cms, labels, names):
         focus_pred.append(new_tensor)
         focus_labels.append(new_labels)
     
-    print("Len focus_pred: ", len(focus_pred))
-    print("Len focus_labels: ", len(focus_labels))
-    print("Size focus_labels[0]: ", focus_labels[0][0].size())
-    print("focus_labels[0][0]", focus_labels[0][0])
-    
-    return 0, 0, 0
+        print("Len focus_pred: ", len(focus_pred))
+        print("Len focus_labels: ", len(focus_labels))
+        print("Size focus_labels[0][0]: ", focus_labels[0][0].size())
+        print("focus_labels[0][0]", focus_labels[0][0])
+        
+        return 0, 0, 0
 
     # enum = 0
     # for cm, label in zip(cms, focus_labels):
