@@ -237,10 +237,12 @@ def noisy_loss2(pred, cms, labels, names):
         for j in range(len(pred_flat[i])):
             if (pred_flat[i, j] > threshold) & (pred_flat[i, j] < (1 - threshold)):
                 print(pred_flat[i, j])
-        return 0, 0, 0        
+   
         indices = torch.nonzero(mask)
         
         new_tensor = pred_flat[i, indices[:, 0]]
+        print("new tensor: ", new_tensor.size())
+        return 0, 0, 0
         new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
         
         mask_prob = new_tensor.unsqueeze(1)
