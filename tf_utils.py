@@ -224,73 +224,372 @@ def noisy_loss2(pred, cms, labels, names):
         labels_tensor = torch.cat([label.view(1, h * w) for label in labels_list], dim=0)
         labels_flat_list.append(labels_tensor)
 
-    print("Pred_flat size: ", pred_flat.size())
-    print("Pred_norm size: ", pred_norm.size())
-    print("Len labels_flat: ", len(labels_flat_list))
-    print("Size labels_flat[0]: ", labels_flat_list[0].size())
-    print("labels_flat[0][0]: ", labels_flat_list[0][0])
-    print("Zero count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)))
-    print("One count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1)))
-    print("Non 0-1 count: ", labels_flat_list[0][0].size(0)
-           - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)) 
-           - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1))
-           )
+    # print("Pred_flat size: ", pred_flat.size())
+    # print("Pred_norm size: ", pred_norm.size())
+    # print("Len labels_flat: ", len(labels_flat_list))
+    # print("Size labels_flat[0]: ", labels_flat_list[0].size())
+    # print("labels_flat[0][0]: ", labels_flat_list[0][0])
+    # print("Zero count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)))
+    # print("One count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1)))
+    # print("Non 0-1 count: ", labels_flat_list[0][0].size(0)
+    #        - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)) 
+    #        - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1))
+    #        )
     
     threshold = 0.05
     focus_pred = []
     focus_labels = []
     
     for i in range(b):
+        # print(i)
         mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
-        for j in range(len(pred_flat[i])):
-            if (pred_flat[i, j] > threshold) & (pred_flat[i, j] < (1 - threshold)):
-                print(pred_flat[i, j])
+        # for j in range(len(pred_flat[i])):
+            # if (pred_flat[i, j] > threshold) & (pred_flat[i, j] < (1 - threshold)):
+                # print(pred_flat[i, j])
    
         indices = torch.nonzero(mask)
         
-        new_tensor = pred_flat[i, indices[:, 0]]
-        print("new tensor: ", new_tensor)
+        new_tensor = round_to_01(pred_flat[i, indices[:, 0]], 0.5)
+        # print("new tensor size: ", new_tensor.size())
+        # print("new tensor: ", new_tensor)
+        # print("Number of zero elements:", torch.eq(new_tensor, 0).sum().item())
+        # print("Number of one elements:", new_tensor.numel() - torch.eq(new_tensor, 0).sum().item())
 
         new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
-        print("len new labels: ", len(new_labels))
-        print("new_labels[0]", new_labels[0])
-        print("new_labels[0]", round_to_01(new_labels[0], 0.5))
-        print("new_labels[1]", new_labels[1])
-        print("new_labels[1]", round_to_01(new_labels[1], 0.5))
-        print("new_labels[2]", new_labels[2])
-        print("new_labels[2]", round_to_01(new_labels[2], 0.5))
-        return 0, 0, 0
-        mask_prob = new_tensor.unsqueeze(1)
-        back_prob = (1 - new_tensor).unsqueeze(1)
-        new_tensor = torch.cat([mask_prob, back_prob], dim=1)
+        new_labels[0] = round_to_01(new_labels[0], 0.5)
+        new_labels[1] = round_to_01(new_labels[1], 0.5)
+        new_labels[2] = round_to_01(new_labels[2], 0.5)
+        
+        # print("len new labels: ", len(new_labels))
+        # print("new_labels[0]", new_labels[0])
+        # print("Number of zero elements:", torch.eq(new_labels[0], 0).sum().item())
+        # print("Number of one elements:", new_labels[0].numel() - torch.eq(new_labels[0], 0).sum().item())
+        # print("new_labels[1]", new_labels[1])
+        # print("Number of zero elements:", torch.eq(new_labels[1], 0).sum().item())
+        # print("Number of one elements:", new_labels[1].numel() - torch.eq(new_labels[1], 0).sum().item())
+        # print("new_labels[2]", new_labels[2])
+        # print("Number of zero elements:", torch.eq(new_labels[1], 0).sum().item())
+        # print("Number of one elements:", new_labels[2].numel() - torch.eq(new_labels[1], 0).sum().item())
+
+        mask_prob = new_tensor.unsqueeze(0)
+        back_prob = (1 - new_tensor).unsqueeze(0)
+        new_tensor = torch.cat([mask_prob, back_prob], dim = 0)
         focus_pred.append(new_tensor)
         focus_labels.append(new_labels)
     
-        print("Len focus_pred: ", len(focus_pred))
-        print("focus_pred: ", focus_pred[0, 0])
-        print("Len focus_labels: ", len(focus_labels))
-        print("Size focus_labels[0][0]: ", focus_labels[0][0].size())
-        print("focus_labels[0][0]", focus_labels[0][0])
-        
+    # print("Len focus_pred: ", len(focus_pred))
+    # print("focus_pred: ", focus_pred[0])
+    # print("Size focus_pred[0]: ", focus_pred[0].size())
+    # print("Len focus_labels: ", len(focus_labels))
+    # print("Size focus_labels[0][0]: ", focus_labels[0][0].size())
+    # print("focus_labels[0][0]", focus_labels[0][0])
 
-    # enum = 0
-    # for cm, label in zip(cms, focus_labels):
-    #     enum += 1
-    #     batch_loss = 0
-        
-    #     for i, focus_pred_i in enumerate(focus_pred):
-    #         cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred_i.size(2)).to('cuda')
-    #         a1, a2, a3, a4 = cm_simple.size()
-    #         cm_simple = cm_simple.view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
-    #         pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_i.permute(2, 1, 0).to(DEVICE))
-    #         pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
-    #         pred_noisy_mask = pred_noisy[:, 0, :]
+     # Reorganize focus labels:
+    new_labels_list = []
+    listA = []
+    listB = []
+    listC = []
+
+    # Create 3 lists of 16 lists each
+    for labels_list in focus_labels:
+        listA.append(labels_list[0])
+        listB.append(labels_list[1])
+        listC.append(labels_list[2])
+    
+    new_labels_list.append(listA)
+    new_labels_list.append(listB)
+    new_labels_list.append(listC)
+
+    lossAR = 0.0
+    lossHS = 0.0
+    lossSG = 0.0
+
+    enum = 0
+    for cm, label in zip(cms, new_labels_list):
+        enum += 1
+        batch_loss = 0
+        print("Annotator ", enum)
+        mean_confusion_matrix = []
+
+        for i, focus_pred_i in enumerate(focus_pred):
             
-    #         loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
-    #         batch_loss += loss_current
+            # print("CM size: ", cm.size())
+            # print("CM[i, :, :, 0, 0] size: ", cm[i, :, :, 0, 0].size())
+            cm_simple = cm[i, :, :, 0, 0].unsqueeze(0).unsqueeze(-1).repeat(1, 1, 1, focus_pred_i.size(1)).to('cuda')
+            # print("CM_simple size: ", cm_simple.size())
+            a1, a2, a3, a4 = cm_simple.size()
+            # print("a1 =", a1)
+            # print("a2 =", a2)
+            # print("a3 =", a3)
+            # print("a4 =", a4)
+            cm_simple = cm_simple.view(a1 * a4, a2 * a3).view(a1 * a4, a2, a3)
+            # print("CM_simple size: ", cm_simple.size())
+            # print("Size focus_pred: ", focus_pred_i.unsqueeze(-1).permute(1, 0, 2).size())
+            # print("focus_pred: ", focus_pred_i.unsqueeze(-1).permute(1, 0, 2)[:10, 0, :])
+            # print("cm_simple: ", cm_simple)
+            pred_noisy = torch.bmm(cm_simple.to(DEVICE), focus_pred_i.unsqueeze(-1).permute(1, 0, 2).to(DEVICE))
+            # print("Pred_noisy size: ", pred_noisy.size())
+            pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
+            # print("Pred_noisy size: ", pred_noisy.size())
+            pred_noisy_mask = pred_noisy[:, 0, :]
+            # print("Pred_noisy: ", pred_noisy.size())
+            # print("Label: ", label[i].size())
+            # print("pred_noisy: ", pred_noisy[0, 0, :].size())
+            # print("Label: ", label[i][:10])
+            # print("Confusion matrix: ")
+            confusion_matrix_np = confusion_matrix( np.round(label[i].cpu().detach().numpy()).astype(int), 
+                                                    np.round(pred_noisy[0, 0, :].cpu().detach().numpy()).astype(int))
+            # print(torch.nn.functional.normalize(torch.from_numpy(confusion_matrix_np).float(), p = 1, dim = 0))
+            mean_confusion_matrix.append(torch.nn.functional.normalize(torch.from_numpy(confusion_matrix_np).float(), p = 1, dim = 0))
+
+            loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
+            # print("Step loss: ", loss_current.item())
+            batch_loss += loss_current
         
-    #     batch_loss /= len(focus_pred)
-    #     total_loss += batch_loss
+        if enum == 1:
+            lossAR += batch_loss.item() / len(focus_pred)
+            print("Confusion matrix AR: ")
+            print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+        elif enum == 2:
+            lossHS += batch_loss.item() / len(focus_pred)
+            print("Confusion matrix HS: ")
+            print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+        elif enum == 3:
+            lossSG += batch_loss.item() / len(focus_pred)
+            print("Confusion matrix SG: ")
+            print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+        else:
+            print("loss not assigned...")
+
+        # print("Annotator's loss: ", batch_loss.item() / len(focus_pred))
+        
+        batch_loss /= len(focus_pred)
+        total_loss += batch_loss
+    
+    print(f'Total loss: {total_loss.item():.4f}, AR Loss: {lossAR:.4f}, HS Loss: {lossHS:.4f}, SG Loss: {lossSG:.4f}')
+
+    # print("Total loss: ", total_loss.item())
+    
+    return total_loss, total_loss, total_loss * 0
+
+def noisy_loss3(pred, cms, labels, names):
+
+    total_loss = 0.0
+    pred_norm = torch.sigmoid(pred)
+
+    b, c, h, w = pred_norm.size()
+    pred_flat = pred_norm.view(b, c * h * w)
+
+    labels_flat_list = []
+    for labels_list in labels:
+        labels_tensor = torch.cat([label.view(1, h * w) for label in labels_list], dim = 0)
+        labels_flat_list.append(labels_tensor)
+
+    # print("Pred_flat size: ", pred_flat.size())
+    # print("Pred_norm size: ", pred_norm.size())
+    # print("Len labels_flat: ", len(labels_flat_list))
+    # print("Size labels_flat[0]: ", labels_flat_list[0].size())
+    # print("labels_flat[0][0]: ", labels_flat_list[0][0])
+    # print("Zero count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)))
+    # print("One count: ", torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1)))
+    # print("Non 0-1 count: ", labels_flat_list[0][0].size(0)
+    #        - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 0)) 
+    #        - torch.count_nonzero(torch.eq(labels_flat_list[0][0], 1))
+    #        )
+
+    cms_flat_list = []
+    for cms_list in cms:
+        cms_tensor = torch.cat([cm.view(cm.size(0), h * w) for cm in cms_list], dim = 0)
+        cms_flat_list.append(cms_tensor)
+
+    # print("Len cms_flat: ", len(cms_flat_list))
+    # print("Size cms_flat[0]: ", cms_flat_list[0].size())
+    # print("cms_flat[0][0]: ", cms_flat_list[0][0])
+    
+    threshold = 0.05
+    focus_pred = []
+    focus_labels = []
+    focus_cms = []
+    
+    for i in range(b):
+        # print(i)
+        mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
+        # for j in range(len(pred_flat[i])):
+            # if (pred_flat[i, j] > threshold) & (pred_flat[i, j] < (1 - threshold)):
+                # print(pred_flat[i, j])
+        
+        indices = torch.nonzero(mask)
+        
+        new_tensor = round_to_01(pred_flat[i, indices[:, 0]], 0.5)
+        # print("new tensor size: ", new_tensor.size())
+        # print("new tensor: ", new_tensor)
+        # print("Number of zero elements:", torch.eq(new_tensor, 0).sum().item())
+        # print("Number of one elements:", new_tensor.numel() - torch.eq(new_tensor, 0).sum().item())
+
+        new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
+        new_labels[0] = round_to_01(new_labels[0], 0.5)
+        new_labels[1] = round_to_01(new_labels[1], 0.5)
+        new_labels[2] = round_to_01(new_labels[2], 0.5)
+
+        new_cms1 = [cms_flat_list[j][i, indices[:, 0]] for j in range(len(cms_flat_list))]
+        new_cms2 = [cms_flat_list[j][i + b, indices[:, 0]] for j in range(len(cms_flat_list))]
+        new_cms3 = [cms_flat_list[j][i + b * 2, indices[:, 0]] for j in range(len(cms_flat_list))]
+        new_cms4 = [cms_flat_list[j][i + b * 3, indices[:, 0]] for j in range(len(cms_flat_list))]
+        
+        # print("len new labels: ", len(new_labels))
+        # print("len new cms1: ", len(new_cms1))
+        # print("len new cms2: ", len(new_cms2))
+        # print("len new cms3: ", len(new_cms3))
+        # print("len new cms4: ", len(new_cms4))
+        # print("new_labels[0]", new_labels[0].size())
+        # print("new_cms1[0]", new_cms1[0].size())
+        # print("new_cms2[0]", new_cms2[0].size())
+        # print("new_cms3[0]", new_cms3[0].size())
+        # print("new_cms4[0]", new_cms4[0].size())
+
+        # print("Number of zero elements:", torch.eq(new_labels[0], 0).sum().item())
+        # print("Number of one elements:", new_labels[0].numel() - torch.eq(new_labels[0], 0).sum().item())
+        # print("new_labels[1]", new_labels[1].size())
+        # print("new_cms[1]", new_cms1[1].size())
+        # print("Number of zero elements:", torch.eq(new_labels[1], 0).sum().item())
+        # print("Number of one elements:", new_labels[1].numel() - torch.eq(new_labels[1], 0).sum().item())
+        # print("new_labels[2]", new_labels[2])
+        # print("new_cms[2]", new_cms1[2])
+        # print("Number of zero elements:", torch.eq(new_labels[1], 0).sum().item())
+        # print("Number of one elements:", new_labels[2].numel() - torch.eq(new_labels[1], 0).sum().item())
+
+        mask_prob = new_tensor.unsqueeze(0)
+        back_prob = (1 - new_tensor).unsqueeze(0)
+        new_tensor = torch.cat([mask_prob, back_prob], dim = 0)
+        focus_pred.append(new_tensor)
+        focus_labels.append(new_labels)
+        new_cmsA = torch.cat((torch.cat((torch.cat((new_cms1[0], new_cms2[0]), dim = 0), new_cms3[0]), dim = 0), new_cms4[0]), dim = 0)
+        new_cmsB = torch.cat((torch.cat((torch.cat((new_cms1[1], new_cms2[1]), dim = 0), new_cms3[1]), dim = 0), new_cms4[1]), dim = 0)
+        new_cmsC = torch.cat((torch.cat((torch.cat((new_cms1[2], new_cms2[2]), dim = 0), new_cms3[2]), dim = 0), new_cms4[2]), dim = 0)
+        focus_cms.append([new_cmsA, new_cmsB, new_cmsC])
+        # print(len(focus_labels[0][0]))
+        # print(len(focus_cms))
+        # print(len(focus_cms[0]))
+
+    # print("Len focus_pred: ", len(focus_pred))
+    # print("focus_pred: ", focus_pred[0])
+    # print("Size focus_pred[0]: ", focus_pred[0].size())
+    # print("Len focus_labels: ", len(focus_labels))
+    # print("Len focus_cms: ", len(focus_cms))
+    # print("Size focus_labels[0][0]: ", focus_labels[0][0].size())
+    # print("Size focus_cms[0][0]: ", focus_cms[0][0].size())
+    # print("focus_cms[0][0]: ", focus_cms[0][0])
+    # print("focus_labels[0][0]", focus_labels[0][0])
+    
+     # Reorganize focus labels:
+    new_labels_list = []
+    listA = []
+    listB = []
+    listC = []
+
+    # Create 3 lists of 16 lists each
+    for labels_list in focus_labels:
+        listA.append(labels_list[0])
+        listB.append(labels_list[1])
+        listC.append(labels_list[2])
+    
+    new_labels_list.append(listA)
+    new_labels_list.append(listB)
+    new_labels_list.append(listC)
+
+    # Reorganize focus cms:
+    new_cms_list = []
+    listCMA = []
+    listCMB = []
+    listCMC = []
+
+    # Create 3 lists of 64 lists each
+    for cms_list in focus_cms:
+        listCMA.append(cms_list[0])
+        listCMB.append(cms_list[1])
+        listCMC.append(cms_list[2])
+    
+    new_cms_list.append(listCMA)
+    new_cms_list.append(listCMB)
+    new_cms_list.append(listCMC)
+
+    # print("labels:", len(new_labels_list[0]))
+    # print("cms:", len(new_cms_list[0]))
+    # print("labels:", new_labels_list[0][0].size())
+    # print("cms:", new_cms_list[0][0].size())
+
+    lossAR = 0.0
+    lossHS = 0.0
+    lossSG = 0.0
+
+    enum = 0
+    for cm, label in zip(new_cms_list, new_labels_list):
+        enum += 1
+        batch_loss = 0
+        # print("Annotator ", enum)
+        # print("label:", len(label))
+        # print("label:", len(label[0]))
+        # print("label:", label[0].size())
+        # print("cm:", len(cm))
+        # print("cm:", len(cm[0]))
+        # print("cm:", cm[0].size())
+
+        # mean_confusion_matrix = []
+
+        for i, focus_pred_i in enumerate(focus_pred):
+
+            # print(cm[i])
+            # print(cm[i].size(0))
+            # print(torch.reshape(cm[i], (int(cm[i].size(0) / 4), 2, 2) ))
+            cm_2x2 = torch.reshape(cm[i], (int(cm[i].size(0) / 4), 2, 2))
+            # print(cm_2x2.size())
+            # print("Size focus_pred: ", focus_pred_i.unsqueeze(-1).permute(1, 0, 2).size())
+            # print("focus_pred: ", focus_pred_i.unsqueeze(-1).permute(1, 0, 2)[:10, 0, :])
+            pred_noisy = torch.bmm(cm_2x2.to(DEVICE), focus_pred_i.unsqueeze(-1).permute(1, 0, 2).to(DEVICE))
+            # print("Pred_noisy size: ", pred_noisy.size())
+            a1, a2, a4 = pred_noisy.size()
+            pred_noisy = pred_noisy.view(a1, a4, a2).permute(0, 2, 1).contiguous().view(a1, a2, a4)
+            # print("Pred_noisy size: ", pred_noisy.size())
+            
+            pred_noisy_mask = pred_noisy[:, 0, :]
+            # print("Pred_noisy: ", pred_noisy.size())
+            # print("Label: ", label[i].size())
+            # print("pred_noisy: ", pred_noisy[0, 0, :].size())
+            # print("Label: ", label[i][:10])
+            # print("Confusion matrix: ")
+            # confusion_matrix_np = confusion_matrix( np.round(label[i].cpu().detach().numpy()).astype(int), 
+            #                                         np.round(pred_noisy[0, 0, :].cpu().detach().numpy()).astype(int))
+            
+            # print(torch.nn.functional.normalize(torch.from_numpy(confusion_matrix_np).float(), p = 1, dim = 0))
+            # mean_confusion_matrix.append(torch.nn.functional.normalize(torch.from_numpy(confusion_matrix_np).float(), p = 1, dim = 0))
+
+            loss_current = dice_loss2(pred_noisy_mask.to(DEVICE), label[i].to(DEVICE))
+            # print("Step loss: ", loss_current.item())
+            batch_loss += loss_current
+            
+        if enum == 1:
+            lossAR += batch_loss.item() / len(focus_pred)
+            # print("Confusion matrix AR: ")
+            # print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+        elif enum == 2:
+            lossHS += batch_loss.item() / len(focus_pred)
+            # print("Confusion matrix HS: ")
+            # print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+        elif enum == 3:
+            lossSG += batch_loss.item() / len(focus_pred)
+            # print("Confusion matrix SG: ")
+            # print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+        else:
+            print("loss not assigned...")
+
+        # print("Annotator's loss: ", batch_loss.item() / len(focus_pred))
+        
+        batch_loss /= len(focus_pred)
+        total_loss += batch_loss
+    
+    print(f'Total loss: {total_loss.item():.4f}, AR Loss: {lossAR:.4f}, HS Loss: {lossHS:.4f}, SG Loss: {lossSG:.4f}')
+
+    # print("Total loss: ", total_loss.item())
     
     return total_loss, total_loss, total_loss * 0
 

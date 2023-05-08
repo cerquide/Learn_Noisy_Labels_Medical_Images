@@ -17,7 +17,7 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
-from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, noisy_loss, noisy_loss2
+from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, noisy_loss, noisy_loss2, noisy_loss3
 from tf_utils import plot_performance
 from tf_utils import test_lGM
 from tf_utils import calculate_cm, evaluate_cm
@@ -47,7 +47,7 @@ test_split = 0.05
 epochs = 10
 patience = 500
 
-GCM = True  # for using Global CM, else local CM.
+GCM = False  # for using Global CM, else local CM.
 TL = True   # for using transfer learning
 weights_path = './tf_coc/coc_Final_dict.pt'
 # weights_path = './tf_skin/skin_Final_dict.pt'
@@ -176,8 +176,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
-            loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
-            return 0
+            # loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
+            loss, loss_dice, loss_trace = noisy_loss3(output, output_cms, labels_all, names)
+
             # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
 
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
@@ -244,7 +245,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
-                loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
+                # loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
+                loss, loss_dice, loss_trace = noisy_loss3(output, output_cms, labels_all, names)
                 # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
                 val_loss += loss.item()
                 val_loss_dice += loss_dice.item()
@@ -310,7 +312,8 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             # Calculate the Loss 
             output, output_cms = model(X)
             # loss = criterion(output, y)
-            loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
+            # loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
+            loss, loss_dice, loss_trace = noisy_loss3(output, output_cms, labels_all, names)
             # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
             val_loss += loss.item()
             val_loss_dice += loss_dice.item()
