@@ -79,7 +79,7 @@ def clear_cms(tensor, label, threshold = 1e-3):
 def clear_pred(pred, increment = 0.05):
 
     # Boolean #
-    increment = 0.05
+    increment = 0.01
     clear_tensor = torch.logical_or(pred >= (1 - increment), pred <= increment)
     dirty_tensor = torch.logical_and(pred < (1 - increment), pred > increment)
 
@@ -372,19 +372,111 @@ def noisy_loss2(pred, cms, labels, names):
     
     return total_loss, total_loss, total_loss * 0
 
-def noisy_loss3(pred, cms, labels, names):
+def compute_behavior(pred, labels, labels_avrg):
 
     total_loss = 0.0
     pred_norm = torch.sigmoid(pred)
 
     b, c, h, w = pred_norm.size()
     pred_flat = pred_norm.view(b, c * h * w)
-
+    
     labels_flat_list = []
     for labels_list in labels:
         labels_tensor = torch.cat([label.view(1, h * w) for label in labels_list], dim = 0)
         labels_flat_list.append(labels_tensor)
+    
+    for labels_avrg_list in labels_avrg:
+        labels_avrg_flat_list = [torch.cat([label.view(1, h * w) for label in labels_avrg_list], dim = 0)]
 
+    threshold = 0.05
+    focus_pred = []
+    focus_labels = []
+    focus_labels_avrg = []
+
+    for i in range(b):
+
+        mask = (pred_flat[i] > threshold) & (pred_flat[i] < (1 - threshold))
+        
+        indices = torch.nonzero(mask)
+        
+        new_tensor = round_to_01(pred_flat[i, indices[:, 0]], 0.5)
+
+        new_labels = [labels_flat_list[j][i, indices[:, 0]] for j in range(len(labels_flat_list))]
+        new_labels[0] = round_to_01(new_labels[0], 0.5)
+        new_labels[1] = round_to_01(new_labels[1], 0.5)
+        new_labels[2] = round_to_01(new_labels[2], 0.5)
+
+        new_labels_avrg = [labels_avrg_flat_list[j][i, indices[:, 0]] for j in range(len(labels_avrg_flat_list))]
+        new_labels_avrg[0] = round_to_01(new_labels_avrg[0], 0.5)
+
+        mask_prob = new_tensor.unsqueeze(0)
+        back_prob = (1 - new_tensor).unsqueeze(0)
+        new_tensor = torch.cat([mask_prob, back_prob], dim = 0)
+        focus_pred.append(new_tensor)
+        focus_labels.append(new_labels)
+        focus_labels_avrg.append(new_labels_avrg)
+        
+    
+     # Reorganize focus labels:
+    new_labels_list = []
+    listA = []
+    listB = []
+    listC = []
+
+    new_labels_avrg_list = []
+    listX = []
+
+    # Create 3 lists of 16 lists each
+    for labels_list in focus_labels:
+        listA.append(labels_list[0])
+        listB.append(labels_list[1])
+        listC.append(labels_list[2])
+    
+    for labels_list in focus_labels_avrg:
+        listX.append(labels_list[0])
+    
+    new_labels_list.append(listA)
+    new_labels_list.append(listB)
+    new_labels_list.append(listC)
+
+    new_labels_avrg_list.append(listX)
+    
+    confusion_matrices = []
+    for i, labels in enumerate(new_labels_list):
+        conf_matrices = []
+        for j, label in enumerate(labels):
+            
+            conf_mat = calculate_cm(y_pred = label, y_true = new_labels_avrg_list[0][j])
+            conf_matrices.append(conf_mat)
+        
+        sum_cm = torch.zeros(2, 2)
+        for tensor in conf_matrices:
+            sum_cm += tensor
+        avrg_cm = sum_cm / len(conf_matrices)
+        
+        # print("CM of Annotator ", (i + 1))
+        # print(avrg_cm)
+        confusion_matrices.append(avrg_cm)
+    
+    return confusion_matrices
+
+
+def noisy_loss3(pred, cms, labels, labels_avrg, names):
+
+    total_loss = 0.0
+    pred_norm = torch.sigmoid(pred)
+
+    b, c, h, w = pred_norm.size()
+    pred_flat = pred_norm.view(b, c * h * w)
+    
+    labels_flat_list = []
+    for labels_list in labels:
+        labels_tensor = torch.cat([label.view(1, h * w) for label in labels_list], dim = 0)
+        labels_flat_list.append(labels_tensor)
+    
+    for labels_avrg_list in labels_avrg:
+        labels_avrg_flat_list = [torch.cat([label.view(1, h * w) for label in labels_avrg_list], dim = 0)]
+    
     # print("Pred_flat size: ", pred_flat.size())
     # print("Pred_norm size: ", pred_norm.size())
     # print("Len labels_flat: ", len(labels_flat_list))
@@ -409,6 +501,7 @@ def noisy_loss3(pred, cms, labels, names):
     threshold = 0.05
     focus_pred = []
     focus_labels = []
+    focus_labels_avrg = []
     focus_cms = []
     
     for i in range(b):
@@ -431,6 +524,9 @@ def noisy_loss3(pred, cms, labels, names):
         new_labels[1] = round_to_01(new_labels[1], 0.5)
         new_labels[2] = round_to_01(new_labels[2], 0.5)
 
+        new_labels_avrg = [labels_avrg_flat_list[j][i, indices[:, 0]] for j in range(len(labels_avrg_flat_list))]
+        new_labels_avrg[0] = round_to_01(new_labels_avrg[0], 0.5)
+        
         new_cms1 = [cms_flat_list[j][i, indices[:, 0]] for j in range(len(cms_flat_list))]
         new_cms2 = [cms_flat_list[j][i + b, indices[:, 0]] for j in range(len(cms_flat_list))]
         new_cms3 = [cms_flat_list[j][i + b * 2, indices[:, 0]] for j in range(len(cms_flat_list))]
@@ -446,7 +542,7 @@ def noisy_loss3(pred, cms, labels, names):
         # print("new_cms2[0]", new_cms2[0].size())
         # print("new_cms3[0]", new_cms3[0].size())
         # print("new_cms4[0]", new_cms4[0].size())
-
+        
         # print("Number of zero elements:", torch.eq(new_labels[0], 0).sum().item())
         # print("Number of one elements:", new_labels[0].numel() - torch.eq(new_labels[0], 0).sum().item())
         # print("new_labels[1]", new_labels[1].size())
@@ -457,12 +553,13 @@ def noisy_loss3(pred, cms, labels, names):
         # print("new_cms[2]", new_cms1[2])
         # print("Number of zero elements:", torch.eq(new_labels[1], 0).sum().item())
         # print("Number of one elements:", new_labels[2].numel() - torch.eq(new_labels[1], 0).sum().item())
-
+        
         mask_prob = new_tensor.unsqueeze(0)
         back_prob = (1 - new_tensor).unsqueeze(0)
         new_tensor = torch.cat([mask_prob, back_prob], dim = 0)
         focus_pred.append(new_tensor)
         focus_labels.append(new_labels)
+        focus_labels_avrg.append(new_labels_avrg)
         new_cmsA = torch.cat((torch.cat((torch.cat((new_cms1[0], new_cms2[0]), dim = 0), new_cms3[0]), dim = 0), new_cms4[0]), dim = 0)
         new_cmsB = torch.cat((torch.cat((torch.cat((new_cms1[1], new_cms2[1]), dim = 0), new_cms3[1]), dim = 0), new_cms4[1]), dim = 0)
         new_cmsC = torch.cat((torch.cat((torch.cat((new_cms1[2], new_cms2[2]), dim = 0), new_cms3[2]), dim = 0), new_cms4[2]), dim = 0)
@@ -487,15 +584,39 @@ def noisy_loss3(pred, cms, labels, names):
     listB = []
     listC = []
 
+    new_labels_avrg_list = []
+    listX = []
+
     # Create 3 lists of 16 lists each
     for labels_list in focus_labels:
         listA.append(labels_list[0])
         listB.append(labels_list[1])
         listC.append(labels_list[2])
     
+    for labels_list in focus_labels_avrg:
+        listX.append(labels_list[0])
+    
     new_labels_list.append(listA)
     new_labels_list.append(listB)
     new_labels_list.append(listC)
+
+    new_labels_avrg_list.append(listX)
+    
+    for i, labels in enumerate(new_labels_list):
+        conf_matrices = []
+        for j, label in enumerate(labels):
+            
+            conf_mat = calculate_cm(y_pred = label, y_true = new_labels_avrg_list[0][j])
+            conf_matrices.append(conf_mat)
+        
+        sum_cm = torch.zeros(2, 2)
+        for tensor in conf_matrices:
+            sum_cm += tensor
+        avrg_cm = sum_cm / len(conf_matrices)
+        
+        print("CM of Annotator ", (i + 1))
+        print(avrg_cm)
+    return 0,0,0,0,0,0
 
     # Reorganize focus cms:
     new_cms_list = []
@@ -513,11 +634,13 @@ def noisy_loss3(pred, cms, labels, names):
     new_cms_list.append(listCMB)
     new_cms_list.append(listCMC)
 
-    # print("labels:", len(new_labels_list[0]))
-    # print("cms:", len(new_cms_list[0]))
-    # print("labels:", new_labels_list[0][0].size())
-    # print("cms:", new_cms_list[0][0].size())
-
+    print("labels:", len(new_labels_list[0]))
+    print("cms:", len(new_cms_list[0]))
+    print("labels:", new_labels_list[0][0].size())
+    print("cms:", new_cms_list[0][0].size())
+    print("cms:", new_cms_list[0][0])
+    print("cms:", torch.reshape(new_cms_list[0][0], (int(new_cms_list[0][0].size(0) / 4), 2, 2)))
+    return 0,0,0,0,0,0
     lossAR = 0.0
     lossHS = 0.0
     lossSG = 0.0
@@ -534,7 +657,7 @@ def noisy_loss3(pred, cms, labels, names):
         # print("cm:", len(cm[0]))
         # print("cm:", cm[0].size())
 
-        # mean_confusion_matrix = []
+        mean_confusion_matrix = []
 
         for i, focus_pred_i in enumerate(focus_pred):
 
@@ -542,6 +665,8 @@ def noisy_loss3(pred, cms, labels, names):
             # print(cm[i].size(0))
             # print(torch.reshape(cm[i], (int(cm[i].size(0) / 4), 2, 2) ))
             cm_2x2 = torch.reshape(cm[i], (int(cm[i].size(0) / 4), 2, 2))
+            print("cm_2x2: ", cm_2x2[0:10])
+            
             # print(cm_2x2.size())
             # print("Size focus_pred: ", focus_pred_i.unsqueeze(-1).permute(1, 0, 2).size())
             # print("focus_pred: ", focus_pred_i.unsqueeze(-1).permute(1, 0, 2)[:10, 0, :])
@@ -552,13 +677,17 @@ def noisy_loss3(pred, cms, labels, names):
             # print("Pred_noisy size: ", pred_noisy.size())
             
             pred_noisy_mask = pred_noisy[:, 0, :]
-            # print("Pred_noisy: ", pred_noisy.size())
-            # print("Label: ", label[i].size())
-            # print("pred_noisy: ", pred_noisy[0, 0, :].size())
-            # print("Label: ", label[i][:10])
+            # print("cm: ", cm[i])
+            # print("Pred: ", focus_pred_i[0])
+            # print("Pred_noisy: ", pred_noisy[:, 0])
+            # print("Label: ", label[i])
+            # calculate_cm(pred = )
+
+            # print("pred_noisy: ", pred_noisy[:, 0, 0].size())
+            # print("Label: ", label[i][:].size())
             # print("Confusion matrix: ")
             # confusion_matrix_np = confusion_matrix( np.round(label[i].cpu().detach().numpy()).astype(int), 
-            #                                         np.round(pred_noisy[0, 0, :].cpu().detach().numpy()).astype(int))
+            #                                         np.round(pred_noisy[:, 0, 0].cpu().detach().numpy()).astype(int))
             
             # print(torch.nn.functional.normalize(torch.from_numpy(confusion_matrix_np).float(), p = 1, dim = 0))
             # mean_confusion_matrix.append(torch.nn.functional.normalize(torch.from_numpy(confusion_matrix_np).float(), p = 1, dim = 0))
@@ -571,6 +700,7 @@ def noisy_loss3(pred, cms, labels, names):
             lossAR += batch_loss.item() / len(focus_pred)
             # print("Confusion matrix AR: ")
             # print(torch.mean(torch.stack(mean_confusion_matrix, dim = 0), dim = 0))
+            # return 0,0,0,0,0,0
         elif enum == 2:
             lossHS += batch_loss.item() / len(focus_pred)
             # print("Confusion matrix HS: ")
@@ -591,7 +721,9 @@ def noisy_loss3(pred, cms, labels, names):
 
     # print("Total loss: ", total_loss.item())
     
-    return total_loss, total_loss, total_loss * 0
+    return total_loss, total_loss, total_loss * 0, lossAR, lossHS, lossSG
+
+
 
 def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
@@ -636,8 +768,9 @@ def noisy_label_loss_GCM(pred, cms, labels, names, alpha = 0.1):
 
         pred_noisy = pred_noisy.view(b, h*w, c).permute(0, 2, 1).contiguous().view(b, c, h, w)
         pred_noisy_mask = pred_noisy[:, 0, :, :]
-        
-        save_borders(unclear_tensor.squeeze(1), pred_noisy_mask, enum, names)
+        # print(label_noisy.size())
+        # print(unclear_tensor.squeeze(1).size())
+        save_borders(unclear_tensor.squeeze(1), label_noisy.squeeze(1), enum, names)
 
         # pred_noisy = pred_noisy_mask.unsqueeze(1)
         # pred_noisy = pred_noisy_mask
@@ -670,7 +803,7 @@ def print_cms(cms):
     print("AR CM: ", cms_ar[0, :, :, 0, 0])
     
 
-def noisy_label_loss_lCM(pred, cms, labels, alpha = 0.1):
+def noisy_label_loss_lCM(pred, cms, labels, names, alpha = 0.1):
 
     main_loss = 0.0
     regularisation = 0.0
@@ -726,9 +859,9 @@ def combined_loss(pred, cms, ys):
 
     y_AR, y_HS, y_SG, y_avrg = ys[0], ys[1], ys[2], ys[3]
 
-    cm_AR = torch.tensor(calculate_cm(pred = y_AR, true = y_avrg))
-    cm_HS = torch.tensor(calculate_cm(pred = y_HS, true = y_avrg))
-    cm_SG = torch.tensor(calculate_cm(pred = y_SG, true = y_avrg))
+    cm_AR = torch.tensor(calculate_cm(y_pred = y_AR, y_true = y_avrg))
+    cm_HS = torch.tensor(calculate_cm(y_pred = y_HS, y_true = y_avrg))
+    cm_SG = torch.tensor(calculate_cm(y_pred = y_SG, y_true = y_avrg))
 
     print("CM size: ", cm_AR.size())
 
@@ -745,6 +878,7 @@ def combined_loss(pred, cms, ys):
 
 def calculate_cm(y_pred, y_true):
 
+    smooth = 1e-4
     # flatten the tensors into a 1D array
     y_pred = y_pred.view(-1)
     y_true = y_true.view(-1)
@@ -758,13 +892,20 @@ def calculate_cm(y_pred, y_true):
     # total_pixels = y_pred.numel()
 
     # create the confusion matrix
-    confusion_matrix = torch.tensor([[tn, fp], [fn, tp]])
+    r0 = fp+tn + smooth
+    r1 = tp+fn + smooth
+    confusion_matrix = torch.tensor(
+        [[tn/r0,fp/r0],
+        [fn/r1,tp/r1]]
+    )
+    #confusion_matrix = torch.tensor([[tn, fp], [fn, tp]])
 
-    col_sums = confusion_matrix.sum(dim = 0)
-    confusion_matrix = confusion_matrix / col_sums
+    #col_sums = confusion_matrix.sum(dim = 1)
+    #confusion_matrix = confusion_matrix / col_sums
 
-    return torch.round(confusion_matrix * 10000) / 10000
-   
+    #return torch.round(confusion_matrix * 10000) / 10000
+    return confusion_matrix
+    
 def evaluate_cm(pred, pred_cm, true_cm):
 
     # print("pred: ", pred.size())
@@ -862,7 +1003,7 @@ def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
     print(f'Test data size: {len(test_loader)}, Test Loss: {test_loss:.4f}, Test Loss Dice: {test_loss_dice:.4f}, Test Dice: {test_dice:.4f}')
 
 ### Plotting ###
-def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path):
+def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path, name = 'Main'):
     epochs = range(1, len(train_losses) + 1)
 
     # Plot losses
@@ -872,10 +1013,10 @@ def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path)
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.ylim([0., 1.])
-    plt.yticks([0.1 * i for i in range(11)])
+    # plt.ylim([0., 1.])
+    # plt.yticks([0.1 * i for i in range(11)])
     plt.grid(True)
-    plt.savefig(fig_path + '/losses.png')
+    plt.savefig(fig_path + '/' + name + '_losses.png')
     plt.close()
 
     # Plot dices

@@ -181,7 +181,8 @@ class lcm_layers(nn.Module):
         self.conv_1 = conv_block(in_channels = in_channels, out_channels = in_channels)
         self.conv_2 = conv_block(in_channels = in_channels, out_channels = in_channels)
         self.conv_last = nn.Conv2d(in_channels, 4, kernel_size = 1, bias = True)
-        self.relu = nn.Softplus()
+        # self.relu = nn.Softplus()
+        self.relu = nn.Sigmoid()
         # self.relu = nn.Softmax(dim = 1)
 
     def forward(self, x):

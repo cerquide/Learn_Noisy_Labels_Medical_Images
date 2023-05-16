@@ -17,7 +17,7 @@ from pathlib import Path
 
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
-from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, noisy_loss, noisy_loss2, noisy_loss3
+from tf_utils import noisy_label_loss_GCM, noisy_label_loss_lCM, noisy_loss, noisy_loss2, noisy_loss3, compute_behavior
 from tf_utils import plot_performance
 from tf_utils import test_lGM
 from tf_utils import calculate_cm, evaluate_cm
@@ -55,6 +55,34 @@ def print_matrices(model):
     for name, param in model.named_parameters():
         if 'cms_output' in name:
             print(param)
+
+def print_matrices_on_borders(borders):
+
+    cmA = []
+    cmB = []
+    cmC = []
+    cmDL = []
+    for item in borders:
+        cmA.append(item[0])
+        cmB.append(item[1])
+        cmC.append(item[2])
+        cmDL.append(item[3])
+    
+    total_cm = [cmA, cmB, cmC, cmDL]
+    
+    for i, cm in enumerate(total_cm):
+
+        sum_cm = torch.zeros(2, 2)
+        for tensor in cm:
+            sum_cm += tensor
+        avrg_cm = sum_cm / len(cm)
+
+        if i != 3:
+            print("Confusion Matrix of Annotator", (i + 1))
+            print(avrg_cm)
+        else:
+            print("Confusion Matrix of DL model")
+            print(avrg_cm)
 
 def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
     path_to_save.mkdir(exist_ok = True)
@@ -119,7 +147,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
     print("Model initialized...")
     # print_matrices(model)
-    criterion = nn.BCEWithLogitsLoss(reduce = 'mean')  # The loss function
+    criterion = nn.BCEWithLogitsLoss(reduction = 'mean')  # The loss function
     optimizer = optim.Adam(model.parameters(), lr = learning_rate)
 
     scheduler = StepLR(optimizer, step_size = 30, gamma = 1.)
@@ -134,10 +162,18 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
     train_dice_values = []
     val_dice_values = []
     train_loss_values = []
+    train_lossAR_values = []
+    train_lossHS_values = []
+    train_lossSG_values = []
     val_loss_values = []
+    val_lossAR_values = []
+    val_lossHS_values = []
+    val_lossSG_values = []
 
     print("Training...")
-    
+    lossAR, lossHS, lossSG = 0, 0, 0
+    borders = []
+
     for epoch in range(epochs):
         # Train
 
@@ -149,10 +185,16 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         #print_matrices(model)
 
         train_loss = 0.0
+        train_lossAR = 0.0
+        train_lossHS = 0.0
+        train_lossSG = 0.0
         train_loss_dice = 0.0
         train_loss_trace = 0.0
         train_dice = 0.0
-
+        cm_AR_true = torch.zeros(2,2)
+        cm_HS_true = torch.zeros(2,2)
+        cm_SG_true = torch.zeros(2,2)
+        nb=0
         for name, X, y_AR, y_HS, y_SG, y_avrg in train_loader:
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(DEVICE), y_AR.to(DEVICE), y_HS.to(DEVICE), y_SG.to(DEVICE), y_avrg.to(DEVICE)
@@ -161,31 +203,35 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             labels_all.append(y_AR)
             labels_all.append(y_HS)
             labels_all.append(y_SG)
+
+            labels_avrg_all = []
+            labels_avrg_all.append(y_avrg)
             
             names = name
 
             optimizer.zero_grad()
 
-            #print("Before model call")
-            #print_matrices(model)
-
             output, output_cms = model(X)
 
-            #print("After model call")
-            #print_matrices(model)
-
+            borders_cm = compute_behavior(pred = output, labels = labels_all, labels_avrg = labels_avrg_all)
+            borders.append(borders_cm)
+            
             # Calculate the Loss
             # loss = dice_loss(output, y_avrg)
             # loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
-            loss, loss_dice, loss_trace = noisy_loss3(output, output_cms, labels_all, names)
-
-            # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+            # loss, loss_dice, loss_trace, lossAR, lossHS, lossSG = noisy_loss3(output, output_cms, labels_all, labels_avrg_all, names)
+            
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
 
             # loss, loss_dice, loss_cm = combined_loss(pred = output, cms = output_cms, ys = [y_AR, y_HS, y_SG, y_avrg])
 
             loss.backward()
             optimizer.step()
+
             train_loss += loss.item()
+            train_lossAR += lossAR
+            train_lossHS += lossHS
+            train_lossSG += lossSG
             train_loss_dice += loss_dice.item()
             train_loss_trace += loss_trace.item()
 
@@ -195,28 +241,35 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             train_dice += train_dice_.item()
 
             # # print CMs Real
-            # cm_AR_true = calculate_cm(y_pred = y_AR, y_true = y_avrg)
-            # cm_HS_true = calculate_cm(y_pred = y_HS, y_true = y_avrg)
-            # cm_SG_true = calculate_cm(y_pred = y_SG, y_true = y_avrg)
+            # cm_AR_true += calculate_cm(y_pred = y_AR, y_true = y_avrg)
+            # cm_HS_true += calculate_cm(y_pred = y_HS, y_true = y_avrg)
+            # cm_SG_true += calculate_cm(y_pred = y_SG, y_true = y_avrg)
+            # nb+=1
             # # Real CMs #
             # # ======== #
             # print("==== Real CMs ====")
-            # print("AR CM: ", cm_AR_true)
-            # print("HS CM: ", cm_HS_true)
-            # print("SG CM: ", cm_SG_true)
+            # print("AR CM: ", cm_AR_true/nb)
+            # print("HS CM: ", cm_HS_true/nb)
+            # print("SG CM: ", cm_SG_true/nb)
         
         # for cm in output_cms:
         #     print("CM :", cm[0, :, :, 0, 0])
 
         train_loss /= len(train_loader)
+        train_lossAR /= len(train_loader)
+        train_lossHS /= len(train_loader)
+        train_lossSG /= len(train_loader)
         train_loss_dice /= len(train_loader)
         train_loss_trace /= len(train_loader)
         train_dice /= len(train_loader)
 
-
+        
         # Validate
         model.eval()
         val_loss = 0.0
+        val_lossAR = 0.0
+        val_lossHS = 0.0
+        val_lossSG = 0.0
         val_loss_dice = 0.0
         val_loss_trace = 0.0
         val_dice = 0.0
@@ -232,23 +285,27 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
 
                 names = name
 
-                if GCM == False:
-                    cm_all_true = []
-                    cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
-                    cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
-                    cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
+                # if GCM == False:
+                #     cm_all_true = []
+                #     cm_AR_true = calculate_cm(pred = y_AR, true = y_avrg)
+                #     cm_HS_true = calculate_cm(pred = y_HS, true = y_avrg)
+                #     cm_SG_true = calculate_cm(pred = y_SG, true = y_avrg)
                     
-                    cm_all_true.append(cm_AR_true)
-                    cm_all_true.append(cm_HS_true)
-                    cm_all_true.append(cm_SG_true)
+                #     cm_all_true.append(cm_AR_true)
+                #     cm_all_true.append(cm_HS_true)
+                #     cm_all_true.append(cm_SG_true)
 
                 # Calculate the Loss 
                 output, output_cms = model(X)
                 # loss = criterion(output, y)
                 # loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
-                loss, loss_dice, loss_trace = noisy_loss3(output, output_cms, labels_all, names)
-                # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+                # loss, loss_dice, loss_trace, lossAR, lossHS, lossSG = noisy_loss3(output, output_cms, labels_all, names)
+                loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+
                 val_loss += loss.item()
+                val_lossAR += lossAR
+                val_lossHS += lossHS
+                val_lossSG += lossSG
                 val_loss_dice += loss_dice.item()
                 val_loss_trace += loss_trace.item()
 
@@ -261,12 +318,21 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 val_dice += dice.item()
 
             val_loss /= len(val_loader)
+            val_lossAR /= len(val_loader)
+            val_lossHS /= len(val_loader)
+            val_lossSG /= len(val_loader)
             val_loss_dice /= len(val_loader)
             val_loss_trace /= len(val_loader)
             val_dice /= len(val_loader)
 
         train_loss_values.append(train_loss)
+        train_lossAR_values.append(train_lossAR)
+        train_lossHS_values.append(train_lossHS)
+        train_lossSG_values.append(train_lossSG)
         val_loss_values.append(val_loss)
+        val_lossAR_values.append(val_lossAR)
+        val_lossHS_values.append(val_lossHS)
+        val_lossSG_values.append(val_lossSG)
         train_dice_values.append(train_dice)
         val_dice_values.append(val_dice)
 
@@ -295,6 +361,11 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             if patience_counter >= patience:
                 print("Early stopping")
                 break
+    print(len(borders))
+    print(len(borders[0]))
+    print(borders[0][0].size())
+
+    print_matrices_on_borders(borders = borders)
 
     # Test
     with torch.no_grad():
@@ -313,8 +384,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
             output, output_cms = model(X)
             # loss = criterion(output, y)
             # loss, loss_dice, loss_trace = noisy_loss2(output, output_cms, labels_all, names)
-            loss, loss_dice, loss_trace = noisy_loss3(output, output_cms, labels_all, names)
-            # loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+            # loss, loss_dice, loss_trace, _, _, _ = noisy_loss3(output, output_cms, labels_all, names)
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names, alpha = ALPHA)
+
             val_loss += loss.item()
             val_loss_dice += loss_dice.item()
             val_loss_trace += loss_trace.item()
@@ -341,6 +413,9 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         test(model, test_loader, noisy_label_loss, save_path, DEVICE)
 
     plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
+    plot_performance(train_lossAR_values, val_lossAR_values, train_dice_values, val_dice_values, save_path, 'AR')
+    plot_performance(train_lossHS_values, val_lossHS_values, train_dice_values, val_dice_values, save_path, 'HS')
+    plot_performance(train_lossSG_values, val_lossSG_values, train_dice_values, val_dice_values, save_path, 'SG')
     print("Figures were saved.")
 
 train_model(images_path, masks_path, path_to_save, log_path)
