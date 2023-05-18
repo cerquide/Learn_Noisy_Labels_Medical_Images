@@ -409,13 +409,10 @@ def compute_behavior(pred, labels, labels_avrg):
         new_labels_avrg = [labels_avrg_flat_list[j][i, indices[:, 0]] for j in range(len(labels_avrg_flat_list))]
         new_labels_avrg[0] = round_to_01(new_labels_avrg[0], 0.5)
 
-        mask_prob = new_tensor.unsqueeze(0)
-        back_prob = (1 - new_tensor).unsqueeze(0)
-        new_tensor = torch.cat([mask_prob, back_prob], dim = 0)
-        focus_pred.append(new_tensor)
+        mask_prob = new_tensor
+        focus_pred.append(mask_prob)
         focus_labels.append(new_labels)
         focus_labels_avrg.append(new_labels_avrg)
-        
     
      # Reorganize focus labels:
     new_labels_list = []
@@ -458,6 +455,21 @@ def compute_behavior(pred, labels, labels_avrg):
         # print(avrg_cm)
         confusion_matrices.append(avrg_cm)
     
+    conf_matrices = []
+    for i, tensor in enumerate(focus_pred):
+
+        conf_mat = calculate_cm(y_pred = tensor, y_true = new_labels_avrg_list[0][i])
+        conf_matrices.append(conf_mat)
+
+        sum_cm = torch.zeros(2, 2)
+        for tensor in conf_matrices:
+            sum_cm += tensor
+        avrg_cm = sum_cm / len(conf_matrices)
+        
+        # print("CM of Annotator ", (i + 1))
+        # print(avrg_cm)
+        confusion_matrices.append(avrg_cm)
+
     return confusion_matrices
 
 
@@ -966,7 +978,7 @@ def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
     test_dice = 0.0
 
     with torch.no_grad():
-        for i, (X, y_AR, y_HS, y_SG, y_avrg) in enumerate(test_loader):
+        for i, (name, X, y_AR, y_HS, y_SG, y_avrg) in enumerate(test_loader):
 
             X, y_AR, y_HS, y_SG, y_avrg = X.to(device), y_AR.to(device), y_HS.to(device), y_SG.to(device), y_avrg.to(device)
 
@@ -984,7 +996,8 @@ def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
                 vutils.save_image(X[j], image_path)
                 vutils.save_image(output[j], mask_path)
 
-            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all)
+            names = name
+            loss, loss_dice, loss_trace = noisy_label_loss(output, output_cms, labels_all, names)
 
             test_loss += loss.item()
             test_loss_dice += loss_dice.item()
@@ -1001,6 +1014,43 @@ def test_lGM(model, test_loader, noisy_label_loss, save_path, device = 'cuda'):
         test_dice /= len(test_loader)
 
     print(f'Test data size: {len(test_loader)}, Test Loss: {test_loss:.4f}, Test Loss Dice: {test_loss_dice:.4f}, Test Dice: {test_dice:.4f}')
+
+def test_base(model, test_loader, floss, save_path, device = 'cuda'):
+
+    model.eval()
+
+    test_loss = 0.0
+    test_dice = 0.0
+
+    with torch.no_grad():
+        for i, (X, y) in enumerate(test_loader):
+
+            X, y = X.to(device), y.to(device)
+
+            labels_all = []
+
+            output = model(X)
+
+            for j in range(len(output)):
+
+                image_path = os.path.join(save_path, "batch{}_image{}.png".format(i, j))
+                mask_path = os.path.join(save_path, "batch{}_mask{}.png".format(i, j))
+                vutils.save_image(X[j], image_path)
+                vutils.save_image(output[j], mask_path)
+
+            loss = dice_loss(output, y)
+
+            test_loss += loss.item()
+
+            # Calculate the Dice 
+            pred = torch.sigmoid(output) > 0.5
+            dice = dice_coefficient(pred.float(), y)
+            test_dice += dice.item()
+
+        test_loss /= len(test_loader)
+        test_dice /= len(test_loader)
+
+    print(f'Test data size: {len(test_loader)}, Test Loss: {test_loss:.4f}, Test Dice: {test_dice:.4f}')
 
 ### Plotting ###
 def plot_performance(train_losses, val_losses, train_dices, val_dices, fig_path, name = 'Main'):

@@ -16,50 +16,74 @@ from pathlib import Path
 ### ======= Utils.py ======= ###
 from tf_utils import dice_coefficient, dice_loss
 from tf_utils import plot_performance
+from tf_utils import test_base
 ### ======================== ###
 
 ### ======= Data_Loader.py ======= ###
-from tf_dataloaders import COCTrainDataset
+from tf_dataloaders import FolTrainDataset
+from tf_dataloaders import data_augmentation
 ### ======================== ###
 
 ### ======= Models.py ======= ###
 from tf_models import initialize_model
 ### ======================== ###
 
-images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/images")
-masks_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_gent_raw/avrg")
-path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc_tf/")
-log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/coc/coc_tf/")
+roi = True
+if roi:
+    images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_cph/images")
+    masks_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_cph/avrg")
+    IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 192, 1
+else:
+    images_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_cph_raw/images")
+    masks_path = Path("/data/eurova/multi_annotators_project/LNLMI/oocytes_cph_raw/avrg")
+    IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 256, 1
 
-IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 240, 1
+path_to_save = Path("/data/eurova/multi_annotators_project/LNLMI/Results/follicles/")
+log_path = Path("/data/eurova/multi_annotators_project/LNLMI/Results/follicles/")
+
+# IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS = 192, 256, 1
 learning_rate = 1e-3
 batch_size = 16
 val_split = 0.05
-epochs = 50
+test_split = 0.05
+epochs = 200
 patience = 500
+DEVICE = 'cuda'
+
+DA = True
+if DA:
+    transform = data_augmentation
+else:
+    transform = None
 
 TL = True
 weights_path = './tf_skin/skin_Final_dict.pt'
 
-def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:Path):
-    path_to_save.mkdir(exist_ok=True)
+def train_model(images_path: Path, masks_path: Path, path_to_save: Path, log_path: Path):
+    path_to_save.mkdir(exist_ok = True)
 
     print(images_path)
     print(masks_path)
     # Load the dataset
-    dataset = COCTrainDataset(images_path, masks_path, IMG_WIDTH, IMG_HEIGHT)
+    dataset = FolTrainDataset(images_path, masks_path, IMG_WIDTH, IMG_HEIGHT, transform)
     print("Dataset was loaded...")
     # print("dataset size: ", dataset.size())
 
-    train_len = int(len(dataset) * (1 - val_split))
-    val_len = len(dataset) - train_len
-    train_dataset, val_dataset = random_split(dataset, [train_len, val_len])
+    train_len = int(len(dataset) * (1 - val_split - test_split))
+    val_len = int(len(dataset) * val_split)
+    test_len = len(dataset) - train_len - val_len
+    train_dataset, val_dataset, test_dataset = random_split(dataset, [train_len, val_len, test_len])
 
     print("Train length: ", train_len)
     print("Val length: ", val_len)
+    print("Test length: ", test_len)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle = False)
+
+    train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    val_loader = DataLoader(val_dataset, batch_size = batch_size, shuffle = False)
 
     # Initialize the model, loss function and optimizer
     model = initialize_model(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS).to('cuda')
@@ -148,7 +172,7 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
-            torch.save(model.state_dict(), path_to_save / 'coc_base_weights.pth')
+            # torch.save(model.state_dict(), path_to_save / 'coc_base_weights.pth')
         else:
             patience_counter += 1
 
@@ -156,10 +180,11 @@ def train_model(images_path:Path, masks_path:Path, path_to_save: Path, log_path:
                 print("Early stopping")
                 break
         
-    save_path = './tf_coc'
+    save_path = './results/follicles'
+    # plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
+    # print("Figures were saved.")
+
+    # torch.save(model.state_dict(), save_path + '/fol_Final_dict.pt')
+    test_base(model, test_loader, dice_loss, save_path, DEVICE)
     plot_performance(train_loss_values, val_loss_values, train_dice_values, val_dice_values, save_path)
-    print("Figures were saved.")
-
-    torch.save(model.state_dict(), save_path + '/coc_Final_dict.pt')
-
 train_model(images_path, masks_path, path_to_save, log_path)

@@ -75,6 +75,82 @@ class SkinTrainDataset(Dataset):
 
         return img, mask
     
+### Follicles ###
+
+# Define data augmentation function
+def data_augmentation(image, mask):
+
+    image = transforms.ToPILImage()(image)
+    mask = transforms.ToPILImage()(mask)
+    
+    augmentation_transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        # transforms.RandomRotation(degrees = 90),
+        # transforms.ColorJitter(brightness = 0.2, contrast = 0.2, saturation = 0.2, hue = 0.1),
+    ])
+
+    augmented_image = augmentation_transform(image)
+    augmented_mask = augmentation_transform(mask)
+    
+    augmented_image = transforms.ToTensor()(augmented_image)
+    augmented_mask = transforms.ToTensor()(augmented_mask)
+    
+    return augmented_image, augmented_mask
+
+def load_fol_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height = IMG_HEIGHT):
+    
+    IMG_SIZE = (img_width, img_height)
+    
+    # Load input image
+    input_image = Image.open(imgs_path)
+    input_image = transforms.Resize(IMG_SIZE)(input_image)
+    input_image = transforms.Grayscale(num_output_channels = IMG_CHANNELS)(input_image)
+    input_image = transforms.ToTensor()(input_image)
+
+    # Load input mask
+    input_mask = Image.open(masks_path)
+    input_mask = transforms.Resize(IMG_SIZE)(input_mask)
+    input_mask = transforms.ToTensor()(input_mask)
+
+    return input_image, input_mask
+
+class FolTrainDataset(Dataset):
+    def __init__(self, imgs_path, masks_path, img_width, img_height, transform = None):
+       
+        self.imgs_folder = imgs_path
+        self.msks_folder = masks_path
+        self.transform = transform
+
+    def __len__(self):
+        
+        length = len(glob.glob(os.path.join(self.imgs_folder, '*.tif')))
+
+        return length
+    
+    def __getitem__(self, idx):
+
+        all_images = glob.glob(os.path.join(self.imgs_folder, '*.tif'))
+        all_images.sort()
+
+        all_labels = glob.glob(os.path.join(self.msks_folder, '*.tif'))
+        all_labels.sort()
+
+        image_path = all_images[idx]
+        mask_path = all_labels[idx]
+        image, label = load_coc_train_data(image_path, mask_path)
+
+        image = np.array(image, dtype = 'float32')
+        label = np.array(label, dtype = 'float32')
+        
+        image = torch.from_numpy(image).float()
+        label = torch.from_numpy(label).float()
+
+        if self.transform:
+            image, label = self.transform(image, label)
+
+        return image, label
+
 ### COC ###
 
 def load_coc_train_data(imgs_path, masks_path, img_width = IMG_WIDTH, img_height = IMG_HEIGHT):
@@ -182,8 +258,8 @@ class COC3TrainDataset(Dataset):
         print("Gent data loaded from utils.py as .tif format ...")
 
         # create a list of shuffled indices
-        if seed is not None:
-            np.random.seed(seed)
+        # if seed is not None:
+        #     np.random.seed(seed)
         self.indices = np.random.permutation(len(glob.glob(os.path.join(self.image_folder, '*.tif'))))
 
     def __len__(self):
@@ -210,7 +286,7 @@ class COC3TrainDataset(Dataset):
             all_images.sort()
 
             rand_idx = self.indices[idx]
-            # rand_idx = idx
+            rand_idx = idx
 
             image_path = all_images[rand_idx]
             mask_AR_path = all_labels_AR[rand_idx]
